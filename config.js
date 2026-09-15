@@ -1,0 +1,2 @@
+window.SUPABASE_URL = 'https://scdsbeaizutaipksvwxw.supabase.co';
+window.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjZHNiZWFpenV0YWlwa3N2d3h3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTU2NTksImV4cCI6MjEwNTA3MTY1OX0.xky3XMeXHnLh-WRYTZv0iMoW6tgFZwDwDNH4bngG6kw';
