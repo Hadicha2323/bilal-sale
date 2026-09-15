@@ -19,3 +19,10 @@ desktop.ini
 # Vaqtinchalik
 *.tmp
 *.bak
+# Electron build
+dist/
+out/
+build/
+
+# Electron
+.electron/

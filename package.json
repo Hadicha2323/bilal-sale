@@ -1,5 +1,90 @@
 {
+  "name": "bilal-sale",
+  "version": "1.0.0",
+  "description": "Bilal-sale POS - Savdo nuqtasi uchun POS tizimi",
+  "main": "main.js",
+  "author": "Hadicha2323",
+  "license": "ISC",
+  "keywords": ["pos", "sale", "uzbekistan", "electron"],
+  
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "build": "electron-builder --win --x64",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:installer": "electron-builder --win nsis --x64",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
   "dependencies": {
     "spooly-sdk": "^1.0.0-beta.0"
+  },
+
+  "devDependencies": {
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.3"
+  },
+
+  "build": {
+    "appId": "com.bilalsale.pos",
+    "productName": "Bilal-sale POS",
+    "copyright": "Copyright © 2026 Hadicha2323",
+    
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+
+    "files": [
+      "main.js",
+      "index.html",
+      "config.js",
+      "qz-print.js",
+      "manifest.json",
+      "sw.js",
+      "icon-192.png",
+      "icon.ico",
+      "package.json",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!.git/**/*",
+      "!.vscode/**/*"
+    ],
+
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bilal-sale POS",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "menuCategory": "Bilal-sale"
+    },
+
+    "portable": {
+      "artifactName": "Bilal-sale-Portable-${version}.${ext}"
+    },
+
+    "publish": null,
+    "asar": true,
+    "compression": "maximum",
+    "removePackageScripts": true
   }
 }
