@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Bilal-sale · POS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="qz-print.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        :root {
+            --bg-primary: #f0ebe5;
+            --bg-card: rgba(255, 252, 248, 0.88);
+            --bg-card-hover: rgba(255, 255, 255, 0.7);
+            --bg-menu: rgba(255, 255, 255, 0.25);
+            --bg-input: rgba(255, 255, 255, 0.4);
+            --bg-modal: rgba(255, 252, 248, 0.95);
+            --text-primary: #1a2a4a;
+            --text-secondary: #4a6a8a;
+            --text-muted: #8a9aaa;
+            --border-color: rgba(60, 80, 120, 0.06);
+            --shadow-color: rgba(60, 80, 120, 0.15);
+            --btn-primary: linear-gradient(145deg, #4a9eff, #2a7edf);
+            --btn-success: linear-gradient(145deg, #4a9eff, #2a7edf);
+            --btn-danger: linear-gradient(145deg, #ff7e7e, #ee5a5a);
+            --btn-warning: linear-gradient(145deg, #ffe066, #f5c82a);
+            --stat-bg: rgba(255, 255, 255, 0.5);
+            --product-bg: rgba(255, 255, 255, 0.4);
+            --cart-bg: rgba(255, 255, 255, 0.4);
+            --toast-bg: rgba(255, 252, 248, 0.95);
+            --debt-bg: rgba(255, 255, 255, 0.3);
+            --icon-color: #4a9eff;
+            --toggle-bg: #d0d8e0;
+            --toggle-active: #4a9eff;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-card: rgba(30, 30, 60, 0.92);
+            --bg-card-hover: rgba(255, 255, 255, 0.05);
+            --bg-menu: rgba(255, 255, 255, 0.04);
+            --bg-input: rgba(255, 255, 255, 0.04);
+            --bg-modal: rgba(30, 30, 60, 0.95);
+            --text-primary: #e8e0d8;
+            --text-secondary: #a8b5ff;
+            --text-muted: #6a7a8a;
+            --border-color: rgba(255, 255, 255, 0.04);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --stat-bg: rgba(255, 255, 255, 0.02);
+            --product-bg: rgba(255, 255, 255, 0.02);
+            --cart-bg: rgba(255, 255, 255, 0.02);
+            --toast-bg: rgba(30, 30, 60, 0.95);
+            --debt-bg: rgba(255, 255, 255, 0.02);
+            --icon-color: #4a9eff;
+            --toggle-bg: #3a3a5a;
+            --toggle-active: #4a9eff;
+        }
+
+        html, body { width: 100%; min-height: 100vh; height: 100%; overflow-x: hidden; }
+        body { background: var(--bg-primary); min-height: 100vh; min-height: 100dvh; padding: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.4s ease; }
+        
+        .dark-toggle { position: fixed; top: 12px; right: 12px; z-index: 999; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 60px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; color: var(--text-primary); box-shadow: 0 4px 15px var(--shadow-color); backdrop-filter: blur(8px); font-size: 13px; font-weight: 600; min-height: 40px; }
+        .dark-toggle:hover { transform: scale(1.05); }
+        .dark-toggle i { font-size: 18px; color: var(--icon-color); }
+        .dark-toggle .toggle-track { width: 40px; height: 22px; background: var(--toggle-bg); border-radius: 22px; position: relative; transition: 0.3s; }
+        .dark-toggle .toggle-track .toggle-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
+        body.dark-mode .dark-toggle .toggle-track .toggle-thumb { left: 21px; }
+        body.dark-mode .dark-toggle .toggle-track { background: var(--toggle-active); }
+
+        .pos-container { max-width: 100%; width: 100%; margin: 0 auto; background: var(--bg-card); backdrop-filter: blur(24px) saturate(180%); border-radius: 32px; box-shadow: 0 25px 70px -25px var(--shadow-color); padding: 16px 20px 20px; border: 1px solid var(--border-color); position: relative; overflow: hidden; z-index: 1; min-height: calc(100vh - 16px); display: flex; flex-direction: column; transition: all 0.4s ease; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); flex-shrink: 0; }
+        .brand { font-size: 22px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+        .brand i { background: var(--btn-primary); color: white; padding: 8px 12px; border-radius: 40px; font-size: 18px; min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; }
+        .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .shift-status { font-weight: 500; color: var(--text-secondary); background: var(--stat-bg); padding: 8px 16px; border-radius: 60px; border: 1px solid var(--border-color); font-size: 13px; display: flex; align-items: center; gap: 8px; min-height: 44px; }
+        .shift-status .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+        .shift-status .dot.open { background: #4a9eff; }
+        .shift-status .dot.closed { background: var(--text-muted); }
+
+        .menu-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; padding: 4px; background: var(--bg-menu); border-radius: 60px; border: 1px solid var(--border-color); flex-shrink: 0; }
+        .menu-item { padding: 10px 20px; border: none; border-radius: 40px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; background: transparent; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; min-height: 44px; }
+        .menu-item:hover { background: rgba(74, 158, 255, 0.06); color: var(--text-primary); }
+        .menu-item.active { background: var(--btn-primary); color: white; }
+
+        .section-container { display: none; animation: fadeIn 0.5s ease; flex: 1; overflow-y: auto; }
+        .section-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 60px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; justify-content: center; color: white; }
+        .btn:hover { transform: translateY(-3px); }
+        .btn-primary { background: var(--btn-primary); color: white; }
+        .btn-success { background: var(--btn-success); color: white; }
+        .btn-danger { background: var(--btn-danger); color: white; }
+        .btn-warning { background: var(--btn-warning); color: #1a2a4a; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; min-height: 36px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .stat-card { background: var(--stat-bg); padding: 14px 12px; border-radius: 20px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-card .stat-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .stat-card .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+        .stat-card .stat-value small { font-size: 13px; color: var(--text-secondary); }
+        .stat-card .stat-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 24px; color: var(--icon-color); opacity: 0.15; }
+
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; }
+        .module-card { background: var(--bg-menu); border-radius: 20px; padding: 16px 12px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; text-align: center; color: var(--text-primary); min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .module-card:hover { transform: translateY(-4px); background: var(--bg-card-hover); }
+        .module-card i { font-size: 28px; color: var(--icon-color); background: rgba(74, 158, 255, 0.06); padding: 10px; border-radius: 14px; margin-bottom: 6px; }
+        .module-card h4 { color: var(--text-primary); font-size: 14px; }
+        .module-card p { color: var(--text-secondary); font-size: 11px; }
+
+        .alerts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+        .alert-box { background: var(--bg-menu); border-radius: 18px; padding: 14px 16px; border: 1px solid var(--border-color); min-height: 100px; }
+        .alert-box h3 { font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+
+        .kassa-layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; min-height: 400px; }
+        .search-box { display: flex; gap: 10px; background: var(--bg-input); padding: 6px 14px; border-radius: 60px; border: 1px solid var(--border-color); align-items: center; margin-bottom: 10px; min-height: 50px; }
+        .search-box input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 16px; outline: none; color: var(--text-primary); min-height: 40px; }
+        .search-box i { color: var(--icon-color); font-size: 16px; }
+
+        .category-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; padding: 4px; background: var(--bg-menu); border-radius: 60px; border: 1px solid var(--border-color); }
+        .category-filter .cat-btn { padding: 6px 14px; border: none; border-radius: 40px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; background: transparent; color: var(--text-secondary); min-height: 34px; }
+        .category-filter .cat-btn:hover { background: rgba(74, 158, 255, 0.06); }
+        .category-filter .cat-btn.active { background: var(--btn-primary); color: white; }
+        .category-filter .cat-btn.add-cat { background: rgba(74, 158, 255, 0.06); color: var(--icon-color); border: 1px dashed rgba(74, 158, 255, 0.15); }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto; padding: 4px 2px; }
+        .product-item { background: var(--product-bg); border-radius: 18px; padding: 14px 10px; text-align: center; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.3s ease; color: var(--text-primary); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .product-item:hover { transform: translateY(-4px); background: var(--bg-card-hover); }
+        .product-item .image { font-size: 48px; width: 60px; height: 60px; border-radius: 12px; background: var(--bg-input); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .product-item .image img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+        .product-item .name { font-weight: 600; font-size: 12px; color: var(--text-primary); margin-top: 2px; }
+        .product-item .price { font-size: 14px; color: var(--icon-color); font-weight: 700; margin-top: 2px; }
+
+        .cart-panel { background: var(--cart-bg); border-radius: 20px; padding: 14px; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: 350px; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid var(--border-color); }
+        .cart-header h3 { color: var(--text-primary); font-size: 16px; display: flex; align-items: center; gap: 6px; }
+        .cart-header .count { background: var(--btn-primary); color: white; padding: 2px 10px; border-radius: 40px; font-size: 13px; }
+        .cart-items { flex: 1; overflow-y: auto; margin-bottom: 8px; max-height: 280px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid var(--border-color); min-height: 44px; }
+        .cart-item .info { display: flex; flex-direction: column; flex: 1; }
+        .cart-item .info .name { font-weight: 500; color: var(--text-primary); font-size: 13px; }
+        .cart-item .info .detail { font-size: 11px; color: var(--text-secondary); }
+        .cart-item .qty-control { display: flex; align-items: center; gap: 4px; background: var(--bg-input); border-radius: 40px; padding: 2px 4px; }
+        .cart-item .qty-control button { border: none; background: transparent; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: 700; color: var(--icon-color); font-size: 16px; }
+        .cart-item .qty-control .qty { font-weight: 600; min-width: 20px; text-align: center; color: var(--text-primary); font-size: 14px; }
+        .cart-item .item-total { font-weight: 700; color: var(--icon-color); margin-left: 6px; min-width: 50px; text-align: right; font-size: 13px; }
+        .cart-item .remove-btn { border: none; background: transparent; color: #ff7e7e; cursor: pointer; padding: 4px 6px; font-size: 14px; }
+
+        .total-row { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: var(--text-primary); padding: 10px 0; border-top: 2px solid var(--border-color); }
+        .total-row .total-amount { color: var(--icon-color); font-size: 22px; }
+
+        .pay-big-btn { width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: none; border-radius: 60px; background: var(--btn-success); color: white; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; min-height: 56px; }
+        .pay-big-btn:hover { transform: translateY(-3px); }
+
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
+        .payment-modal.active { display: flex; }
+        .payment-modal-content { background: var(--bg-modal); border-radius: 32px; padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
+        .payment-modal-content h2 { color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 20px; }
+        .payment-modal-content .pay-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .payment-modal-content .pay-method-btn { padding: 12px 8px; border: 2px solid var(--border-color); border-radius: 14px; background: var(--bg-input); cursor: pointer; transition: all 0.3s ease; text-align: center; font-weight: 600; font-size: 12px; color: var(--text-secondary); min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .payment-modal-content .pay-method-btn.active { border-color: #4a9eff; background: rgba(74, 158, 255, 0.06); }
+        .payment-modal-content .pay-method-btn .icon { font-size: 24px; margin-bottom: 2px; }
+        .payment-modal-content .pay-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .payment-modal-content .pay-input { display: flex; align-items: center; background: var(--bg-input); border-radius: 12px; padding: 4px 10px; border: 1px solid var(--border-color); min-height: 44px; }
+        .payment-modal-content .pay-input label { font-size: 11px; font-weight: 600; color: var(--text-secondary); min-width: 36px; }
+        .payment-modal-content .pay-input input { border: none; background: transparent; padding: 6px 4px; width: 100%; outline: none; font-weight: 500; color: var(--text-primary); font-size: 14px; }
+        .payment-modal-content .pay-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; padding: 10px 0; border-top: 2px solid var(--border-color); margin-bottom: 10px; color: var(--text-primary); }
+        .payment-modal-content .pay-total .amount { color: var(--icon-color); }
+        .payment-modal-content .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .products-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .products-header h2 { color: var(--text-primary); display: flex; align-items: center; gap: 6px; font-size: 18px; }
+        .products-table-wrapper { background: var(--bg-menu); border-radius: 18px; padding: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
+        .products-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text-primary); }
+        .products-table th { text-align: left; padding: 10px 10px; color: var(--text-secondary); font-weight: 600; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+        .products-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); vertical-align: middle; }
+        .products-table .product-image { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: var(--bg-input); border: 1px solid var(--border-color); }
+        .products-table .product-image.placeholder { display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-muted); }
+        .products-table .action-btn { border: none; background: transparent; padding: 6px 10px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); }
+        .products-table .action-btn.danger { color: #ff7e7e; }
+        .products-table .print-label-btn { background: var(--btn-primary); color: white; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-modal); border-radius: 32px; padding: 28px; max-width: 480px; width: 100%; max-height: 95vh; overflow-y: auto; border: 1px solid var(--border-color); }
+        .modal h2 { color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 20px; }
+        .modal .form-group { margin-bottom: 14px; }
+        .modal .form-group label { display: block; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; font-size: 13px; }
+        .modal .form-group input, .modal .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-input); font-size: 14px; outline: none; color: var(--text-primary); min-height: 44px; }
+        .modal .modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--toast-bg); color: var(--text-primary); padding: 14px 24px; border-radius: 60px; font-weight: 500; box-shadow: 0 8px 35px var(--shadow-color); border: 1px solid var(--border-color); z-index: 2000; display: none; font-size: 14px; min-height: 48px; align-items: center; gap: 10px; }
+        .toast.show { display: flex; }
+
+        .debt-item { background: var(--debt-bg); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; border-left: 3px solid #4a9eff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 60px; color: var(--text-primary); }
+        .debt-item .debt-info .name { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+        .debt-item .debt-info .detail { font-size: 12px; color: var(--text-secondary); }
+        .debt-item .debt-amount { font-weight: 700; color: #4a9eff; font-size: 16px; }
+
+        .employee-card { background: var(--debt-bg); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 60px; color: var(--text-primary); }
+        .employee-card .emp-info .name { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+        .employee-card .emp-info .detail { font-size: 12px; color: var(--text-secondary); }
+
+        .support-box { background: var(--bg-menu); border-radius: 16px; padding: 14px 18px; margin-top: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; min-height: 70px; }
+        .support-box .info .title { font-weight: 600; color: var(--text-primary); font-size: 15px; }
+        .support-box .info .detail { font-size: 13px; color: var(--text-secondary); }
+
+        .printer-settings-box { background: var(--bg-menu); border-radius: 24px; padding: 20px; max-width: 540px; margin: 0 auto; border: 1px solid var(--border-color); text-align: left; }
+        .printer-settings-box .qz-status { text-align:center; font-weight:600; margin-bottom:12px; padding:12px; border-radius:12px; font-size:14px; min-height: 44px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; }
+        .printer-settings-box .qz-status.ok { background: rgba(74, 158, 255, 0.04); color:#4a9eff; }
+        .printer-settings-box .qz-status.bad { background: rgba(255, 107, 107, 0.04); color:#ff6b6b; }
+        .printer-settings-box .form-group { margin-bottom: 12px; }
+        .printer-settings-box label { display:block; font-weight:600; color:var(--text-secondary); margin-bottom:4px; font-size:13px; }
+        .printer-settings-box input { width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-input); font-size:14px; outline:none; color: var(--text-primary); min-height: 44px; }
+        #foundPrintersList { font-size:12px; background:var(--bg-input); border-radius:10px; padding:8px; margin-top:4px; max-height:200px; overflow:auto; color: var(--text-secondary); }
+
+        @media (max-width: 1024px) { .kassa-layout { grid-template-columns: 1fr 300px; gap: 12px; } .pos-container { padding: 12px 14px 16px; } .products-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }
+        @media (max-width: 820px) { .kassa-layout { grid-template-columns: 1fr; } .cart-panel { min-height: 280px; max-height: 400px; } .alerts-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); } .pos-container { padding: 8px 10px 12px; border-radius: 20px; } .menu-item { padding: 8px 14px; font-size: 12px; min-height: 38px; } .brand { font-size: 18px; } .brand i { padding: 6px 10px; font-size: 16px; min-height: 38px; min-width: 38px; } .products-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); max-height: 280px; } .product-item { padding: 10px 8px; min-height: 100px; } .product-item .image { font-size: 38px; width: 48px; height: 48px; } .product-item .name { font-size: 11px; } .product-item .price { font-size: 13px; } .payment-modal-content { padding: 18px; } .btn { padding: 8px 16px; font-size: 13px; min-height: 38px; } .pay-big-btn { padding: 14px; font-size: 16px; min-height: 48px; } }
+        @media (max-width: 500px) {
+            body { padding: 4px; }
+            .pos-container { padding: 4px 6px 8px; border-radius: 16px; }
+            .menu-bar { gap: 2px; padding: 3px; border-radius: 40px; }
+            .menu-item { padding: 6px 10px; font-size: 11px; min-height: 34px; }
+            .menu-item i { font-size: 12px; }
+            .brand { font-size: 16px; }
+            .brand i { padding: 4px 8px; font-size: 14px; min-height: 34px; min-width: 34px; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+            .stat-card { padding: 8px 6px; border-radius: 12px; min-height: 60px; }
+            .stat-card .stat-value { font-size: 18px; }
+            .stat-card .stat-label { font-size: 9px; }
+            .products-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; max-height: 200px; }
+            .product-item { padding: 8px 6px; border-radius: 12px; min-height: 90px; }
+            .product-item .image { font-size: 32px; width: 40px; height: 40px; }
+            .product-item .name { font-size: 10px; }
+            .product-item .price { font-size: 12px; }
+            .cart-panel { padding: 8px; min-height: 200px; }
+            .cart-header h3 { font-size: 13px; }
+            .cart-items { max-height: 140px; }
+            .pay-big-btn { font-size: 14px; padding: 10px; min-height: 44px; }
+            .products-table-wrapper { padding: 6px; }
+            .products-table { font-size: 11px; }
+            .products-table td, .products-table th { padding: 4px 4px; }
+            .modal { padding: 14px; }
+            .payment-modal-content { padding: 12px; }
+            .btn { padding: 6px 12px; font-size: 12px; min-height: 34px; }
+            .btn-sm { padding: 4px 10px; font-size: 11px; min-height: 30px; }
+            .header-right { gap: 4px; }
+            .shift-status { font-size: 11px; padding: 4px 10px; min-height: 34px; }
+            .search-box { min-height: 40px; padding: 4px 10px; }
+            .debt-item { padding: 8px 12px; min-height: 50px; }
+            .employee-card { padding: 8px 12px; min-height: 50px; }
+            .toast { font-size: 12px; padding: 10px 16px; min-height: 40px; }
+        }
+        @media (max-width: 380px) { .products-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .payment-modal-content .pay-methods { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+
+<button class="dark-toggle" onclick="toggleDarkMode()" title="Tungi rejim">
+    <i class="fas fa-moon"></i>
+    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+    <i class="fas fa-sun"></i>
+</button>
+
+<div class="pos-container">
+    <div class="header">
+        <div class="brand"><i class="fas fa-store-alt"></i> Bilal-sale</div>
+        <div class="header-right">
+            <span class="shift-status" id="shiftStatus"><span class="dot closed"></span> Smena yopiq</span>
+            <button class="btn btn-primary" onclick="toggleShift()" id="shiftBtn"><i class="fas fa-play"></i> <span id="shiftBtnText">Smena ochish</span></button>
+            <span style="font-size:13px;color:var(--text-secondary);">Smena #<span id="shiftNumber">---</span></span>
+            <span style="font-size:13px;color:var(--text-secondary);" id="currentCashier"></span>
+        </div>
+    </div>
+
+    <div class="menu-bar">
+        <button class="menu-item active" onclick="switchSection('dashboard')" id="menuDashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="menu-item" onclick="switchSection('kassa')" id="menuKassa"><i class="fas fa-cash-register"></i> Kassa</button>
+        <button class="menu-item" onclick="switchSection('mahsulotlar')" id="menuMahsulotlar"><i class="fas fa-boxes"></i> Mahsulotlar</button>
+        <button class="menu-item" onclick="switchSection('mijozlar')" id="menuMijozlar"><i class="fas fa-users"></i> Mijozlar</button>
+        <button class="menu-item" onclick="switchSection('nasiya')" id="menuNasiya"><i class="fas fa-handshake"></i> Nasiya</button>
+        <button class="menu-item" onclick="switchSection('xodimlar')" id="menuXodimlar"><i class="fas fa-id-badge"></i> Xodimlar</button>
+        <button class="menu-item" onclick="switchSection('hisobot')" id="menuHisobot"><i class="fas fa-file-alt"></i> Hisobot</button>
+        <button class="menu-item" onclick="switchSection('sozlamalar')" id="menuSozlamalar"><i class="fas fa-cog"></i> Sozlamalar</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="section-container active" id="sectionDashboard">
+        <div class="stats-grid">
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-sun"></i> Kunlik savdo</span><span class="stat-value" id="dashDailySales">0 <small>so'm</small></span><i class="fas fa-chart-line stat-icon"></i></div>
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-hand-holding-usd"></i> Naxt</span><span class="stat-value" id="dashNaxt">0 <small>so'm</small></span><i class="fas fa-coins stat-icon"></i></div>
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-id-card"></i> Uzcard</span><span class="stat-value" id="dashUzcard">0 <small>so'm</small></span><i class="fas fa-id-card stat-icon"></i></div>
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-credit-card"></i> Humo</span><span class="stat-value" id="dashHumo">0 <small>so'm</small></span><i class="fas fa-credit-card stat-icon"></i></div>
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-mobile-alt"></i> Click</span><span class="stat-value" id="dashClick">0 <small>so'm</small></span><i class="fas fa-mobile-alt stat-icon"></i></div>
+            <div class="stat-card"><span class="stat-label"><i class="fas fa-handshake"></i> Nasiya</span><span class="stat-value" id="dashNasiya">0 <small>so'm</small></span><i class="fas fa-handshake stat-icon"></i></div>
+            <div class="stat-card" style="border-left: 3px solid #4a9eff;"><span class="stat-label"><i class="fas fa-clock"></i> Muddati o'tgan</span><span class="stat-value" id="dashOverdue" style="color:#4a9eff;">0</span><i class="fas fa-exclamation-triangle stat-icon"></i></div>
+        </div>
+        <div style="margin-top:10px; background: rgba(74, 158, 255, 0.03); border-radius:18px; padding:12px 16px; border:1px solid rgba(74, 158, 255, 0.04);">
+            <h3 style="color: #4a9eff; font-size:15px; display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <i class="fas fa-exclamation-circle"></i> Muddati kelgan qarzlar
+                <span id="overdueCount" style="background: rgba(255, 107, 107, 0.06); color: #ff6b6b; padding:2px 12px; border-radius:40px; font-size:12px;">0</span>
+            </h3>
+            <div id="overdueDebtsList"><div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:12px;">Hali muddati kelgan qarz yo'q</div></div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="switchSection('kassa')"><i class="fas fa-cash-register"></i><h4>Kassa</h4><p>Sotuv, to'lov, chek</p></div>
+            <div class="module-card" onclick="switchSection('mahsulotlar')"><i class="fas fa-boxes"></i><h4>Mahsulotlar</h4><p>Inventarizatsiya</p></div>
+            <div class="module-card" onclick="switchSection('mijozlar')"><i class="fas fa-users"></i><h4>Mijozlar</h4><p>Ro'yxat, qarz</p></div>
+            <div class="module-card" onclick="switchSection('nasiya')"><i class="fas fa-handshake"></i><h4>Nasiya</h4><p>Qarzlar, to'lov</p></div>
+            <div class="module-card" onclick="switchSection('xodimlar')"><i class="fas fa-id-badge"></i><h4>Xodimlar</h4><p>Kassirlar</p></div>
+            <div class="module-card" onclick="switchSection('hisobot')"><i class="fas fa-file-alt"></i><h4>Hisobot</h4><p>Kun, oy, yil</p></div>
+        </div>
+        <div class="alerts-grid">
+            <div class="alert-box"><h3><i class="fas fa-hourglass-half"></i> Sotilmagan mahsulotlar</h3><div id="unsoldProductsList"><div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:8px;">Hali ma'lumot yo'q</div></div></div>
+            <div class="alert-box"><h3><i class="fas fa-clock"></i> Muddati yaqin</h3><div id="expiryProductsList"><div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:8px;">Hali ma'lumot yo'q</div></div></div>
+        </div>
+    </div>
+
+    <!-- KASSA -->
+    <div class="section-container" id="sectionKassa">
+        <div class="kassa-layout">
+            <div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Mahsulot qidirish (nomi yoki shtrix-kod)" oninput="filterProducts()">
+                    <span style="font-size:12px;color:var(--icon-color);"><i class="fas fa-qrcode"></i> Skaner faol</span>
+                </div>
+                <div class="category-filter" id="categoryFilter">
+                    <button class="cat-btn active" onclick="filterByCategory('all')">📦 Barchasi</button>
+                    <button class="cat-btn add-cat" onclick="addCategory()"><i class="fas fa-plus"></i> Kategoriya</button>
+                </div>
+                <div class="products-grid" id="productsGrid"></div>
+            </div>
+            <div class="cart-panel">
+                <div class="cart-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Savat <span class="count" id="cartCount">0</span></h3>
+                    <button class="btn btn-danger btn-sm" onclick="clearCart()"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:24px 0;"><i class="fas fa-box-open" style="font-size:30px;opacity:0.3;display:block;margin-bottom:6px;"></i>Savat bo'sh</div>
+                </div>
+                <div class="total-row"><span>JAMI</span><span class="total-amount" id="cartTotal">0 so'm</span></div>
+                <button class="pay-big-btn" onclick="openPaymentModal()"><i class="fas fa-credit-card"></i> TO'LOV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAHSULOTLAR -->
+    <div class="section-container" id="sectionMahsulotlar">
+        <div class="products-header">
+            <h2><i class="fas fa-boxes" style="color:#4a9eff;"></i> Mahsulotlar</h2>
+            <button class="btn btn-success" onclick="showProductModal()"><i class="fas fa-plus"></i> Yangi mahsulot</button>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:14px;">
+            <div class="stat-card">
+                <span class="stat-label"><i class="fas fa-box"></i> Jami mahsulotlar</span>
+                <span class="stat-value" id="totalProducts">0</span>
+                <i class="fas fa-boxes stat-icon"></i>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label"><i class="fas fa-arrow-up"></i> Jami kelish narxi</span>
+                <span class="stat-value" id="totalPurchase">0 <small>so'm</small></span>
+                <i class="fas fa-shopping-cart stat-icon"></i>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label"><i class="fas fa-arrow-down"></i> Jami sotish narxi</span>
+                <span class="stat-value" id="totalSell">0 <small>so'm</small></span>
+                <i class="fas fa-tag stat-icon"></i>
+            </div>
+            <div class="stat-card" style="border-left: 3px solid #4a9eff;">
+                <span class="stat-label"><i class="fas fa-coins"></i> Sof foyda</span>
+                <span class="stat-value" id="totalProfit" style="color:#4a9eff;">0 <small>so'm</small></span>
+                <i class="fas fa-chart-line stat-icon"></i>
+            </div>
+        </div>
+
+        <div class="products-table-wrapper">
+            <table class="products-table">
+                <thead><tr><th>Rasm</th><th>Nomi</th><th>Kategoriya</th><th>Shtrix-kod</th><th>Kelish</th><th>Sotish</th><th>Miqdor</th><th>Amallar</th><th>Etiketka</th></tr></thead>
+                <tbody id="productsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MIJOZLAR -->
+    <div class="section-container" id="sectionMijozlar">
+        <div class="products-header"><h2><i class="fas fa-users" style="color:#4a9eff;"></i> Mijozlar ro'yxati</h2></div>
+        <div class="products-table-wrapper">
+            <table class="products-table">
+                <thead><tr><th>Ismi</th><th>Familiyasi</th><th>Telefon</th><th>Qarzdorlik</th><th>Muddat</th><th>Amallar</th></tr></thead>
+                <tbody id="customersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- NASIYA -->
+    <div class="section-container" id="sectionNasiya">
+        <div class="products-header">
+            <h2><i class="fas fa-handshake" style="color:#4a9eff;"></i> Nasiya daftar</h2>
+            <button class="btn btn-success" onclick="showDebtPaymentModal()"><i class="fas fa-money-bill-wave"></i> Qarz to'lash</button>
+        </div>
+        <div id="debtList"></div>
+    </div>
+
+    <!-- XODIMLAR -->
+    <div class="section-container" id="sectionXodimlar">
+        <div class="products-header">
+            <h2><i class="fas fa-id-badge" style="color:#4a9eff;"></i> Xodimlar</h2>
+            <button class="btn btn-success" onclick="showEmployeeModal()"><i class="fas fa-user-plus"></i> Xodim qo'shish</button>
+        </div>
+        <div id="employeesList"></div>
+    </div>
+
+    <!-- HISOBOT -->
+    <div class="section-container" id="sectionHisobot">
+        <div class="products-header"><h2><i class="fas fa-file-alt" style="color:#4a9eff;"></i> Hisobot</h2></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+            <div style="display:flex;gap:6px;align-items:center;background:var(--bg-input);padding:6px 14px;border-radius:60px;border:1px solid var(--border-color);">
+                <label style="color:var(--text-secondary);font-size:13px;">Sana:</label>
+                <input type="date" id="reportDate" style="background:transparent;border:none;color:var(--text-primary);padding:4px 8px;outline:none;font-size:14px;">
+                <button class="btn btn-primary btn-sm" onclick="generateReport('day')"><i class="fas fa-search"></i> Kun</button>
+                <button class="btn btn-warning btn-sm" onclick="generateReport('month')"><i class="fas fa-calendar-alt"></i> Oy</button>
+                <button class="btn btn-warning btn-sm" onclick="generateReport('year')"><i class="fas fa-calendar"></i> Yil</button>
+            </div>
+        </div>
+        <div id="reportResult"></div>
+    </div>
+
+    <!-- SOZLAMALAR -->
+    <div class="section-container" id="sectionSozlamalar">
+        <div style="text-align:center;margin-bottom:14px;">
+            <i class="fas fa-cog" style="font-size:36px;color:#4a9eff;opacity:0.6;display:block;margin-bottom:8px;"></i>
+            <h2 style="color:var(--text-primary);">Printer sozlamalari</h2>
+        </div>
+        <div class="printer-settings-box">
+            <div class="qz-status bad" id="qzStatusBox">⏳ QZ Tray bilan bog'lanmoqda...</div>
+            <div class="form-group"><label>Chek printeri (80mm)</label><input type="text" id="settingsReceiptPrinter" placeholder="Printer nomini kiriting"></div>
+            <div class="form-group"><label>Etiketka printeri (40x30mm)</label><input type="text" id="settingsLabelPrinter" placeholder="Printer nomini kiriting"></div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin:8px 0;">
+                <button class="btn btn-primary btn-sm" onclick="findPrintersUI()"><i class="fas fa-search"></i> Printerlarni topish</button>
+                <button class="btn btn-success btn-sm" onclick="savePrinterSettings()"><i class="fas fa-save"></i> Saqlash</button>
+                <button class="btn btn-warning btn-sm" onclick="testLabelPrint()"><i class="fas fa-tag"></i> Test etiketka</button>
+                <button class="btn btn-warning btn-sm" onclick="testReceiptPrint()"><i class="fas fa-receipt"></i> Test chek</button>
+            </div>
+            <div id="foundPrintersList">Hali qidirilmadi...</div>
+        </div>
+        <div class="support-box">
+            <div class="info">
+                <div class="title"><i class="fas fa-headset" style="color:#4a9eff;"></i> Qo'llab-quvvatlash</div>
+                <div class="detail"><i class="fab fa-telegram"></i> @REAL_212113</div>
+                <div class="detail"><i class="fas fa-phone"></i> +998 77 727 2113</div>
+            </div>
+            <a href="https://t.me/REAL_212113" target="_blank" class="btn"><i class="fab fa-telegram"></i> Yozish</a>
+        </div>
+    </div>
+</div>
+
+<!-- TO'LOV MODAL -->
+<div class="payment-modal" id="paymentModal">
+    <div class="payment-modal-content">
+        <h2><i class="fas fa-credit-card"></i> To'lov</h2>
+        <div class="pay-methods" id="payMethods">
+            <div class="pay-method-btn active" onclick="selectPayMethod(this, 'naxt')"><span class="icon"><i class="fas fa-hand-holding-usd"></i></span>Naxt</div>
+            <div class="pay-method-btn" onclick="selectPayMethod(this, 'uzcard')"><span class="icon"><i class="fas fa-id-card"></i></span>Uzcard</div>
+            <div class="pay-method-btn" onclick="selectPayMethod(this, 'humo')"><span class="icon"><i class="fas fa-credit-card"></i></span>Humo</div>
+            <div class="pay-method-btn" onclick="selectPayMethod(this, 'click')"><span class="icon"><i class="fas fa-mobile-alt"></i></span>Click</div>
+            <div class="pay-method-btn" onclick="selectPayMethod(this, 'nasiya')"><span class="icon"><i class="fas fa-handshake"></i></span>Nasiya</div>
+            <div class="pay-method-btn" onclick="toggleDiscount()" id="discountBtn"><span class="icon"><i class="fas fa-percent"></i></span>Chegirma</div>
+        </div>
+        <div class="pay-inputs">
+            <div class="pay-input"><label>Naxt</label><input type="number" id="modalNaxt" placeholder="0" value="0" oninput="updateModalPayment()"></div>
+            <div class="pay-input"><label>Uzcard</label><input type="number" id="modalUzcard" placeholder="0" value="0" oninput="updateModalPayment()"></div>
+            <div class="pay-input"><label>Humo</label><input type="number" id="modalHumo" placeholder="0" value="0" oninput="updateModalPayment()"></div>
+            <div class="pay-input"><label>Click</label><input type="number" id="modalClick" placeholder="0" value="0" oninput="updateModalPayment()"></div>
+        </div>
+        <div class="pay-total"><span>JAMI</span><span class="amount" id="modalTotal">0 so'm</span></div>
+        <div class="modal-btns">
+            <button class="btn btn-success" onclick="confirmPayment()"><i class="fas fa-check"></i> Tasdiqlash</button>
+            <button class="btn" onclick="closePaymentModal()"><i class="fas fa-times"></i> Bekor qilish</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODALLAR -->
+<div class="modal-overlay" id="categoryModal"><div class="modal"><h2><i class="fas fa-tag"></i> Yangi kategoriya</h2><div class="form-group"><label>Kategoriya nomi *</label><input type="text" id="categoryName" placeholder="Masalan: Non"></div><div class="form-group"><label>Ikona</label><input type="text" id="categoryIcon" placeholder="Emoji"></div><div class="modal-buttons"><button class="btn btn-success" onclick="saveCategory()"><i class="fas fa-save"></i> Saqlash</button><button class="btn" onclick="closeModal('categoryModal')"><i class="fas fa-times"></i> Bekor</button></div></div></div>
+
+<div class="modal-overlay" id="debtorModal"><div class="modal"><h2><i class="fas fa-handshake"></i> Nasiya ma'lumotlari</h2><div class="form-group"><label>Ismi *</label><input type="text" id="debtorName" placeholder="Ismi"></div><div class="form-group"><label>Familiyasi *</label><input type="text" id="debtorSurname" placeholder="Familiyasi"></div><div class="form-group"><label>Telefon *</label><input type="text" id="debtorPhone" placeholder="+998 99 123 45 67"></div><div class="form-group"><label>Qaytarish kuni *</label><input type="date" id="debtorDate"></div><div class="modal-buttons"><button class="btn btn-success" onclick="confirmDebtor()"><i class="fas fa-check"></i> Tasdiqlash</button><button class="btn" onclick="closeModal('debtorModal')"><i class="fas fa-times"></i> Bekor</button></div></div></div>
+
+<div class="modal-overlay" id="debtPaymentModal"><div class="modal"><h2><i class="fas fa-money-bill-wave"></i> Qarz to'lash</h2><div class="form-group"><label>Qarzdor</label><select id="debtorSelect" onchange="updateDebtInfo()"></select></div><div class="form-group"><label>To'lov miqdori</label><input type="number" id="debtPaymentAmount" placeholder="0" min="0"></div><div class="form-group"><label>To'lov turi</label><select id="debtPaymentType"><option value="naxt">Naxt</option><option value="uzcard">Uzcard</option><option value="humo">Humo</option><option value="click">Click</option></select></div><div id="debtInfo" style="background:var(--bg-input);border-radius:12px;padding:10px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;"><span>Jami qarz:</span><span id="debtTotalAmount" style="font-weight:700;">0 so'm</span></div></div><div class="modal-buttons"><button class="btn btn-success" onclick="confirmDebtPayment()"><i class="fas fa-check"></i> To'lash</button><button class="btn" onclick="closeModal('debtPaymentModal')"><i class="fas fa-times"></i> Bekor</button></div></div></div>
+
+<div class="modal-overlay" id="employeeModal"><div class="modal"><h2><i class="fas fa-user-plus"></i> Xodim qo'shish</h2><div class="form-group"><label>Ismi *</label><input type="text" id="empName"></div><div class="form-group"><label>Familiyasi *</label><input type="text" id="empSurname"></div><div class="form-group"><label>Telefon *</label><input type="text" id="empPhone" placeholder="+998 99 123 45 67"></div><div class="form-group"><label>Lavozim</label><select id="empRole"><option value="kassir">Kassir</option><option value="admin">Admin</option></select></div><div class="form-group"><label>Parol *</label><input type="password" id="empPassword"></div><div class="modal-buttons"><button class="btn btn-success" onclick="saveEmployee()"><i class="fas fa-save"></i> Saqlash</button><button class="btn" onclick="closeModal('employeeModal')"><i class="fas fa-times"></i> Bekor</button></div></div></div>
+
+<div class="modal-overlay" id="productModal"><div class="modal"><h2 id="modalTitle"><i class="fas fa-box"></i> Yangi mahsulot</h2><form id="productForm" onsubmit="saveProduct(event)"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div class="form-group"><label>Nomi *</label><input type="text" id="productName" required></div><div class="form-group"><label>Shtrix-kod</label><div style="display:flex;gap:6px;"><input type="text" id="productBarcode" style="flex:1;"><button type="button" class="btn btn-primary btn-sm" onclick="generateBarcode()"><i class="fas fa-random"></i></button></div></div></div><div class="form-group"><label>Kategoriya</label><select id="productCategory"></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div class="form-group"><label>Kelish narxi *</label><input type="number" id="productPurchase" required></div><div class="form-group"><label>Sotish narxi *</label><input type="number" id="productSell" required></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div class="form-group"><label>Miqdor *</label><input type="number" id="productQty" required></div><div class="form-group"><label>Birlik</label><select id="productUnit"><option value="dona">Dona</option><option value="kg">Kilogramm</option></select></div></div><div class="form-group"><label>Muddat</label><input type="date" id="productExpiry"></div><input type="hidden" id="editProductId"><div class="modal-buttons"><button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Saqlash</button><button type="button" class="btn" onclick="closeModal('productModal')"><i class="fas fa-times"></i> Bekor</button></div></form></div></div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Amal bajarildi!</span></div>
+
+<script>
+// ================================================================
+// INDEX.HTML - faqat interfeys logikasi
+// QZ Tray funksiyalari qz-print.js dan olinadi
+// ================================================================
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('bilal_dark_mode', document.body.classList.contains('dark-mode') ? 'true' : 'false');
+}
+
+function formatNumber(num) {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+let products = JSON.parse(localStorage.getItem('bilal_products') || '[]');
+let categories = JSON.parse(localStorage.getItem('bilal_categories') || '[]');
+let debts = JSON.parse(localStorage.getItem('bilal_debts') || '[]');
+let employees = JSON.parse(localStorage.getItem('bilal_employees') || '[]');
+let salesHistory = JSON.parse(localStorage.getItem('bilal_sales_history') || '[]');
+
+let shiftOpen = false, shiftNumber = '---', shiftCashier = '';
+let dailySales = 0, cart = [];
+let discountPercent = 0;
+let dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
+let selectedPayMethod = 'naxt';
+let selectedCategory = 'all';
+
+function saveProducts() { localStorage.setItem('bilal_products', JSON.stringify(products)); }
+function saveEmployees() { localStorage.setItem('bilal_employees', JSON.stringify(employees)); }
+function saveCategories() { localStorage.setItem('bilal_categories', JSON.stringify(categories)); }
+
+// ================================================================
+// ✅ TUZATILDI: saveDebts - xatolik ushlanadi
+// ================================================================
+function saveDebts() {
+    try {
+        localStorage.setItem('bilal_debts', JSON.stringify(debts));
+    } catch (e) {
+        console.error('Qarzlarni saqlashda xato:', e);
+        // Xotira to'lsa, faqat oxirgi 100 tasini saqlash
+        try {
+            debts = debts.slice(-100);
+            localStorage.setItem('bilal_debts', JSON.stringify(debts));
+        } catch (e2) {
+            console.error('Xotira juda to\'lgan:', e2);
+            debts = [];
+            localStorage.removeItem('bilal_debts');
+        }
+    }
+}
+
+// ================================================================
+// ✅ TUZATILDI: saveSalesHistory - xatolik ushlanadi
+// ================================================================
+function saveSalesHistory() {
+    try {
+        const trimmedHistory = salesHistory.slice(-500);
+        localStorage.setItem('bilal_sales_history', JSON.stringify(trimmedHistory));
+        salesHistory = trimmedHistory;
+    } catch (e) {
+        console.error('LocalStorage to\'lib qoldi, eski tarixni tozalash...', e);
+        try {
+            const minimalHistory = salesHistory.slice(-100);
+            localStorage.setItem('bilal_sales_history', JSON.stringify(minimalHistory));
+            salesHistory = minimalHistory;
+        } catch (e2) {
+            console.error('Xotira juda to\'lgan, barcha tarixni o\'chirish...', e2);
+            salesHistory = [];
+            localStorage.removeItem('bilal_sales_history');
+        }
+    }
+}
+
+// ================================================================
+// ✅ Xotirani tekshirish (sahifa yuklanganda)
+// ================================================================
+function checkStorageHealth() {
+    try {
+        const historySize = JSON.stringify(salesHistory).length;
+        const historyCount = salesHistory.length;
+        
+        if (historySize > 4 * 1024 * 1024 || historyCount > 1000) {
+            console.warn('⚠️ Xotira to\'lib qoldi, eski ma\'lumotlar tozalanmoqda...');
+            salesHistory = salesHistory.slice(-300);
+            saveSalesHistory();
+            showToast('🧹 Xotira tozalandi (' + historyCount + ' → ' + salesHistory.length + ')', 'info');
+        }
+    } catch (e) {
+        console.error('Storage tekshirishda xato:', e);
+    }
+}
+
+// ================================================================
+// ✅ MAHSULOT STATISTIKASI
+// ================================================================
+function updateProductStats() {
+    const totalProducts = products.length;
+    let totalPurchase = 0;
+    let totalSell = 0;
+    
+    products.forEach(p => {
+        totalPurchase += (p.purchase || 0) * (p.qty || 0);
+        totalSell += (p.sell || 0) * (p.qty || 0);
+    });
+    
+    const totalProfit = totalSell - totalPurchase;
+    
+    const el1 = document.getElementById('totalProducts');
+    const el2 = document.getElementById('totalPurchase');
+    const el3 = document.getElementById('totalSell');
+    const el4 = document.getElementById('totalProfit');
+    
+    if (el1) el1.textContent = totalProducts;
+    if (el2) el2.innerHTML = formatNumber(totalPurchase) + ' <small>so\'m</small>';
+    if (el3) el3.innerHTML = formatNumber(totalSell) + ' <small>so\'m</small>';
+    if (el4) el4.innerHTML = formatNumber(totalProfit) + ' <small>so\'m</small>';
+}
+
+// ================================================================
+// ✅ SMENA YOPILGANDA EXCELGA YUKLASH
+// ================================================================
+function downloadShiftExcel() {
+    const now = new Date();
+    const dateStr = String(now.getDate()).padStart(2, '0') + '.' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '.' +
+                    now.getFullYear();
+    const timeStr = String(now.getHours()).padStart(2, '0') + '-' +
+                    String(now.getMinutes()).padStart(2, '0');
+    
+    const todaySales = salesHistory.filter(s => {
+        if (!s.time) return false;
+        return s.time.includes(dateStr) || s.time.includes(now.toLocaleDateString('uz'));
+    });
+    
+    let totalNaxt = 0, totalUzcard = 0, totalHumo = 0, totalClick = 0, totalNasiya = 0, grandTotal = 0;
+    
+    todaySales.forEach(s => {
+        if (s.payments) {
+            if (s.payments.naxt) totalNaxt += s.payments.naxt;
+            if (s.payments.uzcard) totalUzcard += s.payments.uzcard;
+            if (s.payments.humo) totalHumo += s.payments.humo;
+            if (s.payments.click) totalClick += s.payments.click;
+            if (s.payments.nasiya) totalNasiya += s.payments.nasiya;
+        }
+        grandTotal += s.total || 0;
+    });
+    
+    let csv = '\uFEFF';
+    csv += 'BILAL-SALE - SMENA HISOBOTI\n';
+    csv += `Sana,${dateStr}\n`;
+    csv += `Vaqt,${timeStr}\n`;
+    csv += `Kassir,"${shiftCashier}"\n`;
+    csv += `Smena raqami,${shiftNumber}\n`;
+    csv += '\n';
+    
+    csv += 'TO\'LOV TURI,SUMMA (SO\'M)\n';
+    csv += `Naxt,${totalNaxt}\n`;
+    csv += `Uzcard,${totalUzcard}\n`;
+    csv += `Humo,${totalHumo}\n`;
+    csv += `Click,${totalClick}\n`;
+    csv += `Nasiya,${totalNasiya}\n`;
+    csv += `JAMI,${grandTotal}\n`;
+    csv += '\n';
+    
+    csv += 'Mahsulot,Miqdor,Narx,Jami\n';
+    todaySales.forEach(s => {
+        if (s.items) {
+            s.items.forEach(item => {
+                csv += `"${item.name}",${item.qty},${item.sell},${item.sell * item.qty}\n`;
+            });
+        }
+    });
+    csv += '\n';
+    
+    const activeDebts = debts.filter(d => d.status === 'active' || d.status === 'partial');
+    if (activeDebts.length > 0) {
+        csv += 'QARZDORLAR RO\'YXATI\n';
+        csv += 'Ismi,Familiyasi,Telefon,Qarz,Qaytarish kuni\n';
+        activeDebts.forEach(d => {
+            csv += `"${d.name}","${d.surname}","${d.phone}",${d.remaining},"${new Date(d.date).toLocaleDateString('uz')}"\n`;
+        });
+    }
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `smena_${shiftNumber}_${dateStr.replace(/\./g, '-')}_${timeStr}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    
+    console.log('📊 Excel hisobot yuklandi:', link.download);
+}
+
+// ================================================================
+// PRINTER FUNKSIYALARI
+// ================================================================
+function loadPrinterSettingsUI() {
+    document.getElementById('settingsReceiptPrinter').value = localStorage.getItem('bilal_receipt_printer') || '';
+    document.getElementById('settingsLabelPrinter').value = localStorage.getItem('bilal_label_printer') || '';
+    
+    const statusBox = document.getElementById('qzStatusBox');
+    if (statusBox) {
+        if (typeof qzConnected !== 'undefined' && qzConnected) {
+            statusBox.className = 'qz-status ok';
+            statusBox.innerHTML = '✅ QZ Tray bilan ulandi';
+        } else {
+            statusBox.className = 'qz-status bad';
+            statusBox.innerHTML = '❌ QZ Tray ulanmagan<br><small style="font-size:11px;color:var(--text-muted);">QZ Tray dasturini ishga tushiring va sahifani yangilang</small>';
+        }
+    }
+}
+
+function savePrinterSettings() {
+    localStorage.setItem('bilal_receipt_printer', document.getElementById('settingsReceiptPrinter').value.trim());
+    localStorage.setItem('bilal_label_printer', document.getElementById('settingsLabelPrinter').value.trim());
+    showToast('✅ Printer sozlamalari saqlandi', 'success');
+}
+
+async function findPrintersUI() {
+    const listBox = document.getElementById('foundPrintersList');
+    if (!listBox) return;
+    listBox.innerHTML = '⏳ Printerlar qidirilmoqda...';
+    
+    const printers = await findPrinters();
+    
+    if (printers.length === 0) {
+        listBox.innerHTML = `
+            <div style="padding:10px;background:rgba(255,107,107,0.06);border-radius:10px;color:#ff6b6b;line-height:1.6;">
+                <strong>❌ Printerlar topilmadi</strong><br>
+                <span style="font-size:11px;color:var(--text-secondary);">
+                    1. <a href="https://qz.io/download/" target="_blank" style="color:#4a9eff;">QZ Tray yuklab oling</a> va o'rnating<br>
+                    2. QZ Tray'ni ishga tushiring<br>
+                    3. Brauzerda "Local network access" ruxsatini bering<br>
+                    4. Sahifani yangilang (F5)
+                </span>
+            </div>`;
+        return;
+    }
+    
+    let html = '<b>🔍 Topilgan printerlar:</b><br>';
+    printers.forEach(p => {
+        const isLabel = p.toLowerCase().includes('label') || p.toLowerCase().includes('245') || p.toLowerCase().includes('tsc');
+        const isReceipt = p.toLowerCase().includes('receipt') || p.toLowerCase().includes('80') || p.toLowerCase().includes('pos');
+        let icon = '🖨️';
+        if (isLabel) icon = '🏷️';
+        if (isReceipt) icon = '🧾';
+        html += `<div style="cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border-color);" onclick="selectPrinter('${p.replace(/'/g, "\\'")}')">${icon} ${p} <span style="color:#4a9eff;font-size:11px;float:right;">(tanlash)</span></div>`;
+    });
+    
+    const labelPrinter = printers.find(p => p.toLowerCase().includes('label') || p.toLowerCase().includes('245') || p.toLowerCase().includes('tsc'));
+    const receiptPrinter = printers.find(p => p.toLowerCase().includes('receipt') || p.toLowerCase().includes('80') || p.toLowerCase().includes('pos'));
+    
+    if (labelPrinter) { document.getElementById('settingsLabelPrinter').value = labelPrinter; html += `<br>✅ <b>Etiketka:</b> ${labelPrinter}`; }
+    if (receiptPrinter) { document.getElementById('settingsReceiptPrinter').value = receiptPrinter; html += `<br>✅ <b>Chek:</b> ${receiptPrinter}`; }
+    
+    listBox.innerHTML = html;
+    if (labelPrinter || receiptPrinter) { savePrinterSettings(); showToast('✅ Printerlar saqlandi!', 'success'); }
+}
+
+function selectPrinter(name) {
+    const choice = confirm(`"${name}" ni qanday printer sifatida saqlaysiz?\n\n✅ "OK" → CHEK\n❌ "Cancel" → ETIKETKA`);
+    if (choice) { document.getElementById('settingsReceiptPrinter').value = name; showToast(`✅ Chek: ${name}`, 'success'); }
+    else { document.getElementById('settingsLabelPrinter').value = name; showToast(`✅ Etiketka: ${name}`, 'success'); }
+    savePrinterSettings();
+}
+
+async function printReceipt(sale) {
+    const receiptPrinter = localStorage.getItem('bilal_receipt_printer') || '';
+    if (typeof qzConnected !== 'undefined' && qzConnected && receiptPrinter) {
+        try {
+            await printReceiptQZ(receiptPrinter, sale, shiftCashier);
+            showToast('🧾 Chek chop etildi', 'success');
+            return;
+        } catch (err) {
+            console.error('QZ Tray chek xatosi:', err);
+        }
+    }
+    printReceiptViaBrowser(sale);
+}
+
+function printReceiptViaBrowser(sale) {
+    const now = new Date();
+    let html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Chek</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: 80mm auto; margin: 0; }
+    body { width: 80mm; font-family: 'Courier New', monospace; font-size: 14px; padding: 2mm 3mm; background: white; color: black; }
+    .header { text-align: center; font-weight: 900; font-size: 18px; margin-bottom: 4px; }
+    .divider { border-top: 1px dashed #000; margin: 4px 0; }
+    .info-line { display: flex; justify-content: space-between; font-size: 12px; }
+    .item-name { font-weight: 700; margin-top: 4px; }
+    .item-detail { display: flex; justify-content: space-between; font-size: 12px; padding-left: 8px; }
+    .total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; padding: 4px 0; }
+    .payment { display: flex; justify-content: space-between; font-size: 12px; }
+    .thanks { text-align: center; font-weight: 700; margin-top: 8px; }
+</style></head><body>
+    <div class="header">🏪 BILAL-SALE</div>
+    <div class="divider"></div>
+    <div class="info-line"><span>Sana:</span><span>${now.toLocaleDateString('uz')}</span></div>
+    <div class="info-line"><span>Vaqt:</span><span>${now.toLocaleTimeString('uz')}</span></div>
+    ${shiftCashier ? `<div class="info-line"><span>Kassir:</span><span>${shiftCashier}</span></div>` : ''}
+    <div class="divider"></div>
+    ${sale.items.map(item => `
+        <div class="item-name">${item.name}</div>
+        <div class="item-detail"><span>${item.qty} x ${formatNumber(item.sell)}</span><span>${formatNumber(item.sell * item.qty)} so'm</span></div>
+    `).join('')}
+    <div class="divider"></div>
+    ${sale.discount > 0 ? `<div class="info-line"><span>Chegirma:</span><span>${sale.discount}%</span></div>` : ''}
+    <div class="total"><span>JAMI:</span><span>${formatNumber(sale.total)} so'm</span></div>
+    <div class="divider"></div>
+    ${sale.payments.naxt > 0 ? `<div class="payment"><span>Naxt:</span><span>${formatNumber(sale.payments.naxt)} so'm</span></div>` : ''}
+    ${sale.payments.uzcard > 0 ? `<div class="payment"><span>Uzcard:</span><span>${formatNumber(sale.payments.uzcard)} so'm</span></div>` : ''}
+    ${sale.payments.humo > 0 ? `<div class="payment"><span>Humo:</span><span>${formatNumber(sale.payments.humo)} so'm</span></div>` : ''}
+    ${sale.payments.click > 0 ? `<div class="payment"><span>Click:</span><span>${formatNumber(sale.payments.click)} so'm</span></div>` : ''}
+    ${sale.payments.nasiya > 0 ? `<div class="payment"><span>Nasiya:</span><span>${formatNumber(sale.payments.nasiya)} so'm</span></div>` : ''}
+    <div class="divider"></div>
+    <div class="thanks">Xaridingiz uchun rahmat! ❤️</div>
+</body></html>`;
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => { printWindow.print(); setTimeout(() => printWindow.close(), 2000); }, 500);
+    }
+}
+
+function printProductLabel(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) { showToast('❌ Mahsulot topilmadi!', 'error'); return; }
+    printLabel(product);
+}
+
+async function printLabel(product) {
+    if (!product) { showToast('❌ Mahsulot topilmadi!', 'error'); return; }
+    if (!product.barcode) { showToast('⚠️ Barcode yo\'q!', 'warning'); return; }
+    
+    const labelPrinter = localStorage.getItem('bilal_label_printer') || '';
+    
+    if (typeof qzConnected !== 'undefined' && qzConnected && labelPrinter) {
+        try {
+            await printLabelQZ(labelPrinter, product);
+            showToast('🏷️ Etiketka printerga yuborildi', 'success');
+            return;
+        } catch (err) {
+            console.error('QZ Tray etiketka xatosi:', err);
+        }
+    }
+    
+    printLabelViaBrowser(product);
+}
+
+function printLabelViaBrowser(product) {
+    const name = product.name || "";
+    const price = product.sell || 0;
+    const barcode = product.barcode || "";
+    
+    const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    try {
+        JsBarcode(tempSvg, barcode, {
+            format: "CODE128", width: 1.3, height: 22,
+            displayValue: false, margin: 0,
+            background: "#ffffff", lineColor: "#000000"
+        });
+    } catch (e) { showToast('❌ Barcode xatolik: ' + e.message, 'error'); return; }
+    const barcodeSVG = tempSvg.outerHTML;
+    
+    const printWindow = window.open("", "_blank", "width=350,height=300");
+    if (!printWindow) { showToast('⚠️ Popup ruxsat bering', 'warning'); return; }
+    
+    printWindow.document.write(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Etiketka</title>
+<style>
+    * { margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+    @page { size: 40mm 30mm !important; margin: 0 !important; padding: 0 !important; }
+    html, body { width: 40mm !important; height: 30mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: #ffffff !important; font-family: Arial, sans-serif !important; }
+    .label { width: 40mm !important; height: 30mm !important; padding: 1.5mm 2mm !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: space-between !important; text-align: center !important; }
+    .label-name { font-size: 12px !important; font-weight: 900 !important; color: #000000 !important; text-transform: uppercase !important; }
+    .label-price { font-size: 18px !important; font-weight: 900 !important; color: #000000 !important; }
+    .label-barcode { display: block !important; margin: 0 auto !important; width: 100% !important; height: 20px !important; }
+    .label-barcode svg { display: block !important; margin: 0 auto !important; width: 100% !important; height: 20px !important; }
+    .label-date { font-size: 10px !important; font-weight: 700 !important; color: #000000 !important; }
+</style></head><body>
+    <div class="label">
+        <div class="label-name">${name}</div>
+        <div class="label-price">${Number(price).toLocaleString("uz-UZ")} SO'M</div>
+        <div class="label-barcode">${barcodeSVG}</div>
+        <div class="label-date">${new Date().toLocaleDateString('uz')}</div>
+    </div>
+<script>window.onload=function(){setTimeout(function(){window.focus();window.print();setTimeout(function(){window.close();},2000);},500);};<\/script>
+</body></html>`);
+    printWindow.document.close();
+    showToast('🖨️ Etiketka chop etilmoqda...', 'info');
+}
+
+function testLabelPrint() {
+    printLabel({ id: 999, name: 'TEST MAHSULOT', sell: 12345, barcode: '9990000073702' });
+}
+
+function testReceiptPrint() {
+    printReceipt({
+        items: [{ name: 'Test mahsulot 1', qty: 2, sell: 10000 }, { name: 'Test mahsulot 2', qty: 1, sell: 5000 }],
+        total: 25000, originalTotal: 25000, discount: 0,
+        payments: { naxt: 25000, uzcard: 0, humo: 0, click: 0, nasiya: 0 }
+    });
+}
+
+// ================================================================
+// MAHSULOTLAR
+// ================================================================
+function initDefaultProducts() {
+    if (products.length === 0) {
+        products = [
+            { id: 1, name: 'Cola 1L', barcode: '123456789', purchase: 10000, sell: 15000, qty: 50, unit: 'dona', expiry: '2026-12-31', visible: true, category: '' },
+            { id: 2, name: 'Fanta 1L', barcode: '987654321', purchase: 6000, sell: 8000, qty: 30, unit: 'dona', expiry: '2026-11-30', visible: true, category: '' },
+            { id: 3, name: 'Suv 0.5L', barcode: '147258369', purchase: 2000, sell: 3000, qty: 100, unit: 'dona', expiry: '2027-01-15', visible: true, category: '' },
+            { id: 4, name: 'Pepsi 1L', barcode: '321654987', purchase: 9000, sell: 14000, qty: 40, unit: 'dona', expiry: '2026-10-20', visible: true, category: '' },
+            { id: 5, name: 'Choy', barcode: '258369147', purchase: 3000, sell: 5000, qty: 60, unit: 'dona', expiry: '2027-03-01', visible: true, category: '' },
+            { id: 6, name: 'MANNOL MOTOR MOYI 10W30', barcode: '9990000073702', purchase: 45000, sell: 65000, qty: 20, unit: 'dona', expiry: '2027-12-31', visible: true, category: '' }
+        ];
+        saveProducts();
+    }
+    renderKassaProducts(); 
+    renderProductsTable(); 
+    updateProductStats();
+    renderCategories(); 
+    renderCategorySelect();
+}
+
+function renderKassaProducts() {
+    const grid = document.getElementById('productsGrid');
+    if (!grid) return;
+    const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+    let filtered = products.filter(p => p.visible !== false && (p.name.toLowerCase().includes(search) || (p.barcode && p.barcode.includes(search))));
+    if (selectedCategory !== 'all') filtered = filtered.filter(p => p.category === selectedCategory);
+    if (filtered.length === 0) { grid.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:20px;grid-column:1/-1;">Mahsulot topilmadi</div>'; return; }
+    grid.innerHTML = filtered.map(p => `
+        <div class="product-item" onclick="addToCart(${p.id})">
+            <div class="image">${p.image ? `<img src="${p.image}">` : '📦'}</div>
+            <div class="name">${p.name}</div>
+            <div class="price">${formatNumber(p.sell)} so'm</div>
+        </div>
+    `).join('');
+}
+
+function filterProducts() { renderKassaProducts(); }
+
+function renderProductsTable() {
+    const tbody = document.getElementById('productsTableBody');
+    if (!tbody) return;
+    
+    updateProductStats();
+    
+    if (products.length === 0) { 
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:24px;">Hali mahsulot yo\'q</td></tr>'; 
+        return; 
+    }
+    tbody.innerHTML = products.map(p => `<tr>
+        <td>${p.image ? `<img src="${p.image}" class="product-image">` : `<div class="product-image placeholder"><i class="fas fa-box"></i></div>`}</td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.category || '—'}</td>
+        <td style="font-family:monospace;font-size:11px;">${p.barcode || '-'}</td>
+        <td>${formatNumber(p.purchase)} so'm</td>
+        <td>${formatNumber(p.sell)} so'm</td>
+        <td>${p.qty} ${p.unit || 'dona'}</td>
+        <td><button class="action-btn" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></td>
+        <td><button class="print-label-btn" onclick="printProductLabel(${p.id})"><i class="fas fa-print"></i> Etiketka</button></td>
+    </tr>`).join('');
+}
+
+function addToCart(productId) {
+    if (!shiftOpen) { showToast('❌ Avval smena oching!', 'error'); return; }
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const existing = cart.find(c => c.id === productId);
+    if (existing) { if (existing.qty >= product.qty) { showToast('⚠️ Omborda yetarli emas!', 'warning'); return; } existing.qty += 1; }
+    else { if (product.qty < 1) { showToast('⚠️ Mahsulot tugagan!', 'warning'); return; } cart.push({ ...product, qty: 1 }); }
+    updateCart(); showToast('✅ ' + product.name + ' qo\'shildi', 'success');
+}
+
+function removeFromCart(productId) { cart = cart.filter(c => c.id !== productId); updateCart(); }
+function changeQty(productId, delta) {
+    const item = cart.find(c => c.id === productId);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) removeFromCart(productId);
+    else updateCart();
+}
+
+function updateCart() {
+    const container = document.getElementById('cartItems');
+    const count = document.getElementById('cartCount');
+    const total = document.getElementById('cartTotal');
+    if (!container) return;
+    count.textContent = cart.reduce((sum, c) => sum + c.qty, 0);
+    if (cart.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:20px 0;">Savat bo\'sh</div>'; total.textContent = '0 so\'m'; return; }
+    container.innerHTML = cart.map(c => `<div class="cart-item"><div class="info"><span class="name">${c.name}</span><span class="detail">${formatNumber(c.sell)} so'm × ${c.qty}</span></div><div class="qty-control"><button onclick="changeQty(${c.id}, -1)">−</button><span class="qty">${c.qty}</span><button onclick="changeQty(${c.id}, 1)">+</button></div><span class="item-total">${formatNumber(c.sell * c.qty)} so'm</span><button class="remove-btn" onclick="removeFromCart(${c.id})"><i class="fas fa-times"></i></button></div>`).join('');
+    total.textContent = formatNumber(cart.reduce((sum, c) => sum + c.sell * c.qty, 0)) + ' so\'m';
+}
+
+function clearCart() {
+    if (cart.length === 0) return;
+    if (confirm('Savatni tozalashni xohlaysizmi?')) { cart = []; updateCart(); showToast('🗑️ Savat tozalandi', 'info'); }
+}
+
+function openPaymentModal() {
+    if (!shiftOpen) { showToast('❌ Avval smena oching!', 'error'); return; }
+    if (cart.length === 0) { showToast('⚠️ Savat bo\'sh', 'warning'); return; }
+    document.getElementById('paymentModal').classList.add('active');
+    document.querySelectorAll('.pay-input input').forEach(inp => inp.value = '0');
+    const total = cart.reduce((sum, c) => sum + c.sell * c.qty, 0);
+    const totalWithDiscount = Math.round(total - (total * discountPercent / 100));
+    const inputs = { 'naxt': 'modalNaxt', 'uzcard': 'modalUzcard', 'humo': 'modalHumo', 'click': 'modalClick' };
+    if (inputs[selectedPayMethod]) { document.getElementById(inputs[selectedPayMethod]).value = totalWithDiscount; }
+    updateModalPayment();
+}
+
+function closePaymentModal() { document.getElementById('paymentModal').classList.remove('active'); }
+
+function selectPayMethod(el, method) {
+    document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedPayMethod = method;
+    document.querySelectorAll('.pay-input input').forEach(inp => inp.value = '0');
+    const total = cart.reduce((sum, c) => sum + c.sell * c.qty, 0);
+    const totalWithDiscount = Math.round(total - (total * discountPercent / 100));
+    const inputs = { 'naxt': 'modalNaxt', 'uzcard': 'modalUzcard', 'humo': 'modalHumo', 'click': 'modalClick' };
+    if (inputs[method]) { document.getElementById(inputs[method]).value = totalWithDiscount; }
+    updateModalPayment();
+}
+
+function updateModalPayment() {
+    const naxt = parseFloat(document.getElementById('modalNaxt')?.value) || 0;
+    const uzcard = parseFloat(document.getElementById('modalUzcard')?.value) || 0;
+    const humo = parseFloat(document.getElementById('modalHumo')?.value) || 0;
+    const click = parseFloat(document.getElementById('modalClick')?.value) || 0;
+    document.getElementById('modalTotal').textContent = formatNumber(naxt + uzcard + humo + click) + ' so\'m';
+}
+
+function toggleDiscount() {
+    const val = prompt('Chegirma foizini kiriting (0-100):', discountPercent || '0');
+    if (val !== null) {
+        const p = parseFloat(val);
+        if (p >= 0 && p <= 100) {
+            discountPercent = p;
+            document.getElementById('discountBtn').innerHTML = `<span class="icon"><i class="fas fa-percent"></i></span>${p > 0 ? p + '%' : 'Chegirma'}`;
+            const total = cart.reduce((sum, c) => sum + c.sell * c.qty, 0);
+            const totalWithDiscount = Math.round(total - (total * discountPercent / 100));
+            const inputs = { 'naxt': 'modalNaxt', 'uzcard': 'modalUzcard', 'humo': 'modalHumo', 'click': 'modalClick' };
+            if (inputs[selectedPayMethod]) { document.getElementById(inputs[selectedPayMethod]).value = totalWithDiscount; }
+            updateModalPayment();
+        }
+    }
+}
+
+function confirmPayment() {
+    const total = cart.reduce((sum, c) => sum + c.sell * c.qty, 0);
+    const totalWithDiscount = Math.round(total - (total * discountPercent / 100));
+    const naxt = parseFloat(document.getElementById('modalNaxt')?.value) || 0;
+    const uzcard = parseFloat(document.getElementById('modalUzcard')?.value) || 0;
+    const humo = parseFloat(document.getElementById('modalHumo')?.value) || 0;
+    const click = parseFloat(document.getElementById('modalClick')?.value) || 0;
+    
+    // ✅ NASIYA uchun maxsus tekshirish
+    if (selectedPayMethod === 'nasiya') { 
+        closePaymentModal(); 
+        showDebtorModal(); 
+        return; 
+    }
+    
+    if (naxt + uzcard + humo + click < totalWithDiscount) { showToast('❌ To\'lov yetarli emas!', 'error'); return; }
+    completeSale(totalWithDiscount, { naxt, uzcard, humo, click }, total);
+    closePaymentModal();
+}
+
+function completeSale(total, payments, originalTotal) {
+    const soldItems = [...cart];
+    cart.forEach(c => { const product = products.find(p => p.id === c.id); if (product) product.qty -= c.qty; });
+    saveProducts(); 
+    renderKassaProducts(); 
+    renderProductsTable(); 
+    updateProductStats();
+    if (payments.naxt > 0) dailyStats.naxt += payments.naxt;
+    if (payments.uzcard > 0) dailyStats.uzcard += payments.uzcard;
+    if (payments.humo > 0) dailyStats.humo += payments.humo;
+    if (payments.click > 0) dailyStats.click += payments.click;
+    const sale = { items: soldItems, total, payments, discount: discountPercent, originalTotal, time: new Date().toLocaleString(), shift: shiftNumber };
+    dailySales += total; salesHistory.push(sale); saveSalesHistory(); updateDashboard();
+    printReceipt(sale);
+    cart = []; updateCart(); discountPercent = 0;
+    document.getElementById('discountBtn').innerHTML = `<span class="icon"><i class="fas fa-percent"></i></span>Chegirma`;
+    showToast('✅ Sotuv: ' + formatNumber(total) + ' so\'m', 'success');
+}
+
+// ================================================================
+// ✅ TUZATILDI: NASIYA (confirmDebtor) - xatoliklar ushlanadi
+// ================================================================
+function showDebtorModal() {
+    document.getElementById('debtorModal').classList.add('active');
+    document.getElementById('debtorDate').value = new Date().toISOString().split('T')[0];
+    const future = new Date();
+    future.setDate(future.getDate() + 30);
+    document.getElementById('debtorDate').max = future.toISOString().split('T')[0];
+}
+
+function confirmDebtor() {
+    const name = document.getElementById('debtorName').value.trim();
+    const surname = document.getElementById('debtorSurname').value.trim();
+    const phone = document.getElementById('debtorPhone').value.trim();
+    const date = document.getElementById('debtorDate').value;
+    
+    // ✅ Validatsiya
+    if (!name || !surname || !phone || !date) { 
+        showToast('❌ Barcha maydonlarni to\'ldiring!', 'error'); 
+        return; 
+    }
+    
+    // ✅ Savat tekshirish
+    if (cart.length === 0) { 
+        showToast('❌ Savat bo\'sh!', 'error'); 
+        return; 
+    }
+    
+    try {
+        const total = cart.reduce((sum, c) => sum + c.sell * c.qty, 0);
+        const totalWithDiscount = Math.round(total - (total * discountPercent / 100));
+        const soldItems = [...cart];
+        
+        // Mahsulot qoldiqlarini kamaytirish
+        cart.forEach(c => { 
+            const product = products.find(p => p.id === c.id); 
+            if (product) product.qty -= c.qty; 
+        });
+        saveProducts(); 
+        renderKassaProducts(); 
+        renderProductsTable(); 
+        updateProductStats();
+        
+        // Nasiya qarzini yaratish
+        const debt = { 
+            id: Date.now(), 
+            name: name, 
+            surname: surname, 
+            phone: phone, 
+            date: date, 
+            amount: totalWithDiscount, 
+            remaining: totalWithDiscount, 
+            paid: 0, 
+            status: 'active', 
+            items: soldItems,
+            created: new Date().toISOString()
+        };
+        debts.push(debt); 
+        saveDebts();
+        
+        // Kunlik statistikaga qo'shish
+        dailyStats.nasiya += totalWithDiscount; 
+        dailySales += totalWithDiscount;
+        
+        // Savdo tarixiga qo'shish
+        const sale = { 
+            items: soldItems, 
+            total: totalWithDiscount, 
+            originalTotal: total, 
+            discount: discountPercent, 
+            payments: { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: totalWithDiscount }, 
+            debtor: { name: name, surname: surname, phone: phone, date: date }, 
+            time: new Date().toLocaleString(), 
+            isDebt: true,
+            shift: shiftNumber
+        };
+        salesHistory.push(sale); 
+        saveSalesHistory();
+        
+        // ✅ CHEK CHIQARISH - xatolik bo'lsa ham davom etadi
+        try {
+            printReceipt(sale);
+        } catch (err) {
+            console.error('Chek chiqarishda xato:', err);
+        }
+        
+        // ✅ UI YANGILASH
+        try {
+            updateDashboard(); 
+            renderDebts(); 
+            renderCustomers();
+        } catch (err) {
+            console.error('UI yangilashda xato:', err);
+        }
+        
+        // Savatni tozalash
+        cart = []; 
+        updateCart(); 
+        discountPercent = 0;
+        document.getElementById('discountBtn').innerHTML = `<span class="icon"><i class="fas fa-percent"></i></span>Chegirma`;
+        
+        // Modalni yopish va formani tozalash
+        closeModal('debtorModal');
+        document.getElementById('debtorName').value = ''; 
+        document.getElementById('debtorSurname').value = ''; 
+        document.getElementById('debtorPhone').value = '';
+        document.getElementById('debtorDate').value = '';
+        
+        showToast('✅ Nasiya: ' + name + ' ' + surname + ' - ' + formatNumber(totalWithDiscount) + ' so\'m', 'success');
+        
+    } catch (err) {
+        console.error('Nasiya yaratishda xato:', err);
+        showToast('❌ Xatolik: ' + err.message, 'error');
+    }
+}
+
+function renderDebts() {
+    const container = document.getElementById('debtList');
+    if (!container) return;
+    const activeDebts = debts.filter(d => d.status === 'active' || d.status === 'partial');
+    if (activeDebts.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:24px;">Barcha qarzlar to\'langan!</div>'; return; }
+    container.innerHTML = activeDebts.map(d => `<div class="debt-item"><div class="debt-info"><div class="name">${d.name} ${d.surname}</div><div class="detail">📱 ${d.phone} | 📅 ${new Date(d.date).toLocaleDateString('uz')}</div></div><div style="text-align:right;"><div class="debt-amount">${formatNumber(d.remaining)} so'm</div></div></div>`).join('');
+}
+
+function renderCustomers() {
+    const tbody = document.getElementById('customersTableBody');
+    if (!tbody) return;
+    const debtors = debts.filter(d => d.status === 'active' || d.status === 'partial');
+    if (debtors.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:24px;">Hali mijoz yo\'q</td></tr>'; return; }
+    tbody.innerHTML = debtors.map(d => `<tr><td><strong>${d.name}</strong></td><td>${d.surname}</td><td>${d.phone}</td><td>${formatNumber(d.remaining)} so'm</td><td>${new Date(d.date).toLocaleDateString('uz')}</td><td><button class="btn btn-success btn-sm" onclick="quickPayDebt(${d.id})"><i class="fas fa-money-bill-wave"></i> To'lash</button></td></tr>`).join('');
+}
+
+function showDebtPaymentModal() {
+    const select = document.getElementById('debtorSelect');
+    select.innerHTML = '';
+    const activeDebts = debts.filter(d => d.status === 'active' || d.status === 'partial');
+    if (activeDebts.length === 0) { showToast('⚠️ To\'lanmagan qarz yo\'q!', 'warning'); return; }
+    activeDebts.forEach(d => { const option = document.createElement('option'); option.value = d.id; option.textContent = `${d.name} ${d.surname} - ${formatNumber(d.remaining)} so'm`; select.appendChild(option); });
+    document.getElementById('debtPaymentAmount').value = '';
+    updateDebtInfo();
+    document.getElementById('debtPaymentModal').classList.add('active');
+}
+
+function updateDebtInfo() {
+    const select = document.getElementById('debtorSelect');
+    const debt = debts.find(d => d.id === parseInt(select.value));
+    if (debt) { document.getElementById('debtTotalAmount').textContent = formatNumber(debt.remaining) + ' so\'m'; }
+}
+
+function confirmDebtPayment() {
+    const select = document.getElementById('debtorSelect');
+    const debtId = parseInt(select.value);
+    const amount = parseFloat(document.getElementById('debtPaymentAmount').value) || 0;
+    const type = document.getElementById('debtPaymentType').value;
+    const debt = debts.find(d => d.id === debtId);
+    if (!debt || amount <= 0) { showToast('❌ Miqdorni kiriting!', 'error'); return; }
+    if (amount > debt.remaining) { showToast('❌ Qarz miqdoridan ko\'p!', 'error'); return; }
+    debt.paid += amount; debt.remaining -= amount;
+    if (type === 'naxt') dailyStats.naxt += amount;
+    else if (type === 'uzcard') dailyStats.uzcard += amount;
+    else if (type === 'humo') dailyStats.humo += amount;
+    else if (type === 'click') dailyStats.click += amount;
+    dailySales += amount;
+    if (debt.remaining <= 0) { debt.status = 'paid'; showToast('✅ Qarz to\'liq to\'landi!', 'success'); }
+    else { debt.status = 'partial'; showToast('✅ Qarz qisman to\'landi!', 'success'); }
+    saveDebts(); saveSalesHistory(); updateDashboard(); renderDebts(); renderCustomers(); closeModal('debtPaymentModal');
+}
+
+function quickPayDebt(id) {
+    const select = document.getElementById('debtorSelect');
+    const option = select.querySelector(`option[value="${id}"]`);
+    if (option) { select.value = id; updateDebtInfo(); }
+    document.getElementById('debtPaymentModal').classList.add('active');
+}
+
+function showEmployeeModal() {
+    document.getElementById('employeeModal').classList.add('active');
+    document.getElementById('empName').value = '';
+    document.getElementById('empSurname').value = '';
+    document.getElementById('empPhone').value = '';
+    document.getElementById('empPassword').value = '';
+}
+
+function saveEmployee() {
+    const name = document.getElementById('empName').value.trim();
+    const surname = document.getElementById('empSurname').value.trim();
+    const phone = document.getElementById('empPhone').value.trim();
+    const role = document.getElementById('empRole').value;
+    const password = document.getElementById('empPassword').value.trim();
+    if (!name || !surname || !phone || !password) { showToast('❌ Barcha maydonlarni to\'ldiring!', 'error'); return; }
+    employees.push({ id: Date.now(), name, surname, phone, role, password, active: true, created: new Date().toISOString() });
+    saveEmployees(); renderEmployees(); closeModal('employeeModal'); showToast('✅ Xodim qo\'shildi', 'success');
+}
+
+function renderEmployees() {
+    const container = document.getElementById('employeesList');
+    if (!container) return;
+    if (employees.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:24px;">Hali xodim yo\'q</div>'; return; }
+    container.innerHTML = employees.map(e => `<div class="employee-card"><div class="emp-info"><div class="name">${e.name} ${e.surname}</div><div class="detail">📱 ${e.phone} | 👔 ${e.role}</div></div><div><span style="font-size:11px;padding:2px 12px;border-radius:40px;background:${e.active ? 'rgba(74,158,255,0.06);color:#4a9eff' : 'var(--bg-input);color:var(--text-muted)'}">${e.active ? '✅ Faol' : '❌ No faol'}</span><button class="btn btn-warning btn-sm" onclick="toggleEmployee(${e.id})"><i class="fas fa-power-off"></i></button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${e.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+function toggleEmployee(id) {
+    const emp = employees.find(e => e.id === id);
+    if (emp) { emp.active = !emp.active; saveEmployees(); renderEmployees(); showToast('✅ Holat o\'zgartirildi', 'success'); }
+}
+
+function deleteEmployee(id) {
+    if (!confirm('Xodimni o\'chirishni xohlaysizmi?')) return;
+    employees = employees.filter(e => e.id !== id);
+    saveEmployees(); renderEmployees(); showToast('🗑️ Xodim o\'chirildi', 'info');
+}
+
+function generateReport(type = 'day') {
+    const dateInput = document.getElementById('reportDate');
+    let targetDate = dateInput.value ? new Date(dateInput.value) : new Date();
+    const container = document.getElementById('reportResult');
+    let filtered = [];
+    if (type === 'day') { const dateStr = targetDate.toISOString().split('T')[0]; filtered = salesHistory.filter(s => s.time && s.time.includes(dateStr)); }
+    else if (type === 'month') { const month = targetDate.getMonth(); const year = targetDate.getFullYear(); filtered = salesHistory.filter(s => { const d = new Date(s.time); return d.getMonth() === month && d.getFullYear() === year; }); }
+    else if (type === 'year') { const year = targetDate.getFullYear(); filtered = salesHistory.filter(s => { const d = new Date(s.time); return d.getFullYear() === year; }); }
+    if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:32px;">Bu sanada savdo yo\'q</div>'; return; }
+    let totals = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0, total: 0 };
+    filtered.forEach(s => {
+        if (s.payments) {
+            if (s.payments.naxt) totals.naxt += s.payments.naxt;
+            if (s.payments.uzcard) totals.uzcard += s.payments.uzcard;
+            if (s.payments.humo) totals.humo += s.payments.humo;
+            if (s.payments.click) totals.click += s.payments.click;
+            if (s.payments.nasiya) totals.nasiya += s.payments.nasiya;
+        }
+        totals.total += s.total || 0;
+    });
+    container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;"><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Jami savdo</div><div style="font-size:20px;font-weight:700;color:#4a9eff;">${formatNumber(totals.total)} so'm</div></div><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Naxt</div><div style="font-size:20px;font-weight:700;">${formatNumber(totals.naxt)} so'm</div></div><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Uzcard</div><div style="font-size:20px;font-weight:700;">${formatNumber(totals.uzcard)} so'm</div></div><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Humo</div><div style="font-size:20px;font-weight:700;">${formatNumber(totals.humo)} so'm</div></div><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Click</div><div style="font-size:20px;font-weight:700;">${formatNumber(totals.click)} so'm</div></div><div style="background:var(--debt-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border-color);text-align:center;"><div style="font-size:11px;color:var(--text-secondary);">Nasiya</div><div style="font-size:20px;font-weight:700;">${formatNumber(totals.nasiya)} so'm</div></div></div>`;
+}
+
+function showProductModal(data = null) {
+    const modal = document.getElementById('productModal');
+    const title = document.getElementById('modalTitle');
+    renderCategorySelect();
+    if (data) {
+        title.innerHTML = '<i class="fas fa-edit"></i> Mahsulot tahrirlash';
+        document.getElementById('productName').value = data.name;
+        document.getElementById('productBarcode').value = data.barcode || '';
+        document.getElementById('productCategory').value = data.category || '';
+        document.getElementById('productPurchase').value = data.purchase;
+        document.getElementById('productSell').value = data.sell;
+        document.getElementById('productQty').value = data.qty;
+        document.getElementById('productUnit').value = data.unit || 'dona';
+        document.getElementById('productExpiry').value = data.expiry || '';
+        document.getElementById('editProductId').value = data.id;
+    } else {
+        title.innerHTML = '<i class="fas fa-box"></i> Yangi mahsulot';
+        document.getElementById('productForm').reset();
+        document.getElementById('editProductId').value = '';
+        generateBarcode();
+    }
+    modal.classList.add('active');
+}
+
+function saveProduct(e) {
+    e.preventDefault();
+    const id = document.getElementById('editProductId').value;
+    const name = document.getElementById('productName').value.trim();
+    const barcode = document.getElementById('productBarcode').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const purchase = parseFloat(document.getElementById('productPurchase').value) || 0;
+    const sell = parseFloat(document.getElementById('productSell').value) || 0;
+    const qty = parseFloat(document.getElementById('productQty').value) || 0;
+    const unit = document.getElementById('productUnit').value;
+    const expiry = document.getElementById('productExpiry').value;
+    if (!name || purchase <= 0 || sell <= 0 || qty <= 0) { showToast('❌ Barcha maydonlarni to\'ldiring!', 'error'); return; }
+    if (sell <= purchase) { showToast('❌ Sotish narxi kelishdan katta bo\'lishi kerak!', 'error'); return; }
+    const productData = { name, barcode: barcode || generateBarcode(true), category, purchase, sell, qty, unit, expiry, visible: true };
+    if (id) {
+        const index = products.findIndex(p => p.id === parseInt(id));
+        if (index !== -1) { products[index] = { ...products[index], ...productData }; showToast('✅ Tahrirlandi!', 'success'); }
+    } else {
+        products.push({ id: Math.max(0, ...products.map(p => p.id)) + 1, ...productData });
+        showToast('✅ Yangi mahsulot!', 'success');
+    }
+    saveProducts(); 
+    renderKassaProducts(); 
+    renderProductsTable(); 
+    updateProductStats();
+    closeModal('productModal');
+}
+
+function editProduct(id) { const product = products.find(p => p.id === id); if (product) showProductModal(product); }
+function deleteProduct(id) { 
+    if (confirm('Mahsulotni o\'chirishni xohlaysizmi?')) { 
+        products = products.filter(p => p.id !== id); 
+        saveProducts(); 
+        renderKassaProducts(); 
+        renderProductsTable(); 
+        updateProductStats();
+        showToast('🗑️ O\'chirildi', 'info'); 
+    } 
+}
+
+function generateBarcode(returnOnly = false) {
+    let code = '';
+    for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+    if (returnOnly) return code;
+    document.getElementById('productBarcode').value = code;
+    return code;
+}
+
+// ================================================================
+// SMENA
+// ================================================================
+function toggleShift() {
+    if (!shiftOpen) {
+        const name = prompt('Kassir ismini kiriting:');
+        if (!name) return;
+        const password = prompt('Parolni kiriting:');
+        if (!password) return;
+        const emp = employees.find(e => e.active && (e.name.toLowerCase() === name.toLowerCase() || (e.name.toLowerCase() + ' ' + e.surname.toLowerCase()) === name.toLowerCase()) && e.password === password);
+        if (!emp) { showToast('❌ Xodim topilmadi yoki parol noto\'g\'ri!', 'error'); return; }
+        shiftOpen = true; shiftCashier = emp.name + ' ' + emp.surname;
+        shiftNumber = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+        dailySales = 0; cart = []; dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
+        updateCart(); updateShiftUI(); updateDashboard();
+        showToast('✅ Smena ochildi! ' + shiftCashier, 'success');
+    } else {
+        if (confirm('Smenani yopishni xohlaysizmi?')) {
+            downloadShiftExcel();
+            shiftOpen = false; shiftCashier = ''; shiftNumber = '---';
+            dailySales = 0; cart = []; dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
+            updateCart(); updateShiftUI(); updateDashboard();
+            showToast('✅ Smena yopildi va Excel yuklandi!', 'success');
+        }
+    }
+}
+
+function updateShiftUI() {
+    const status = document.getElementById('shiftStatus');
+    const btn = document.getElementById('shiftBtnText');
+    const shiftNum = document.getElementById('shiftNumber');
+    const cashier = document.getElementById('currentCashier');
+    if (status) status.innerHTML = shiftOpen ? '<span class="dot open"></span> Smena ochiq' : '<span class="dot closed"></span> Smena yopiq';
+    if (btn) btn.textContent = shiftOpen ? 'Smena yopish' : 'Smena ochish';
+    if (shiftNum) shiftNum.textContent = shiftNumber;
+    if (cashier) cashier.textContent = shiftOpen ? '👤 ' + shiftCashier : '';
+}
+
+function updateDashboard() {
+    document.getElementById('dashDailySales').innerHTML = formatNumber(dailySales) + ' <small>so\'m</small>';
+    document.getElementById('dashNaxt').innerHTML = formatNumber(dailyStats.naxt) + ' <small>so\'m</small>';
+    document.getElementById('dashUzcard').innerHTML = formatNumber(dailyStats.uzcard) + ' <small>so\'m</small>';
+    document.getElementById('dashHumo').innerHTML = formatNumber(dailyStats.humo) + ' <small>so\'m</small>';
+    document.getElementById('dashClick').innerHTML = formatNumber(dailyStats.click) + ' <small>so\'m</small>';
+    document.getElementById('dashNasiya').innerHTML = formatNumber(dailyStats.nasiya) + ' <small>so\'m</small>';
+    const overdue = debts.filter(d => (d.status === 'active' || d.status === 'partial') && new Date(d.date) < new Date());
+    document.getElementById('dashOverdue').textContent = overdue.length;
+    document.getElementById('overdueCount').textContent = overdue.length;
+    const overdueContainer = document.getElementById('overdueDebtsList');
+    if (overdue.length === 0) { overdueContainer.innerHTML = '<div style="text-align:center;color:#4a9eff;opacity:0.7;padding:8px;">✅ Barcha qarzlar o\'z vaqtida</div>'; }
+    else { overdueContainer.innerHTML = overdue.map(d => `<div style="display:flex;justify-content:space-between;padding:4px 0;"><span>${d.name} ${d.surname}</span><span style="color:#4a9eff;">${formatNumber(d.remaining)} so'm</span></div>`).join(''); }
+}
+
+function switchSection(section) {
+    document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('section' + section.charAt(0).toUpperCase() + section.slice(1));
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    const menuBtn = document.getElementById('menu' + section.charAt(0).toUpperCase() + section.slice(1));
+    if (menuBtn) menuBtn.classList.add('active');
+    if (section === 'kassa') { renderKassaProducts(); updateCart(); }
+    if (section === 'mahsulotlar') { renderProductsTable(); updateProductStats(); }
+    if (section === 'sozlamalar') { loadPrinterSettingsUI(); }
+    if (section === 'nasiya') { renderDebts(); }
+    if (section === 'mijozlar') { renderCustomers(); }
+    if (section === 'xodimlar') { renderEmployees(); }
+    if (section === 'dashboard') { updateDashboard(); }
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    const msg = document.getElementById('toastMessage');
+    msg.textContent = message;
+    toast.className = 'toast show';
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const iconEl = toast.querySelector('i');
+    if (iconEl) iconEl.textContent = icons[type] || 'ℹ️';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+function renderCategories() {
+    const container = document.getElementById('categoryFilter');
+    if (!container) return;
+    let html = `<button class="cat-btn ${selectedCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">📦 Barchasi</button>`;
+    categories.forEach(cat => {
+        html += `<button class="cat-btn ${selectedCategory === cat.name ? 'active' : ''}" onclick="filterByCategory('${cat.name}')">${cat.icon || '📁'} ${cat.name}</button>`;
+    });
+    html += `<button class="cat-btn add-cat" onclick="addCategory()"><i class="fas fa-plus"></i> Kategoriya</button>`;
+    container.innerHTML = html;
+}
+
+function filterByCategory(category) { selectedCategory = category; renderCategories(); renderKassaProducts(); }
+function addCategory() { document.getElementById('categoryModal').classList.add('active'); document.getElementById('categoryName').value = ''; document.getElementById('categoryIcon').value = ''; }
+
+function saveCategory() {
+    const name = document.getElementById('categoryName').value.trim();
+    const icon = document.getElementById('categoryIcon').value.trim() || '📁';
+    if (!name) { showToast('❌ Nomini kiriting!', 'error'); return; }
+    if (categories.find(c => c.name === name)) { showToast('❌ Bu kategoriya mavjud!', 'error'); return; }
+    categories.push({ name, icon });
+    saveCategories(); renderCategories(); renderCategorySelect();
+    closeModal('categoryModal');
+    showToast('✅ Kategoriya: ' + name, 'success');
+}
+
+function renderCategorySelect() {
+    const select = document.getElementById('productCategory');
+    if (!select) return;
+    select.innerHTML = '<option value="">Kategoriya tanlang</option>';
+    categories.forEach(cat => { select.innerHTML += `<option value="${cat.name}">${cat.icon || '📁'} ${cat.name}</option>`; });
+}
+
+// SKANER
+let scanBuffer = '', scanTimeout = null;
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        if (document.activeElement === document.getElementById('searchInput')) {
+            const search = document.getElementById('searchInput')?.value?.trim() || '';
+            if (search) {
+                const product = products.find(p => (p.barcode && p.barcode === search) || p.name.toLowerCase() === search.toLowerCase());
+                if (product) { addToCart(product.id); document.getElementById('searchInput').value = ''; showToast('✅ ' + product.name, 'success'); }
+                else { showToast('❌ Topilmadi!', 'error'); }
+            }
+            return;
+        }
+        if (scanBuffer.length > 0) {
+            const search = scanBuffer.trim();
+            const product = products.find(p => (p.barcode && p.barcode === search) || p.name.toLowerCase() === search.toLowerCase());
+            if (product) { addToCart(product.id); showToast('✅ ' + product.name, 'success'); }
+            scanBuffer = '';
+            if (scanTimeout) { clearTimeout(scanTimeout); scanTimeout = null; }
+        }
+    }
+    if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && document.activeElement !== document.getElementById('searchInput')) {
+        scanBuffer += e.key;
+        if (scanTimeout) clearTimeout(scanTimeout);
+        scanTimeout = setTimeout(() => { scanBuffer = ''; scanTimeout = null; }, 300);
+    }
+});
+
+// BOSHLASH
+if (localStorage.getItem('bilal_dark_mode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+
+checkStorageHealth();
+
+initDefaultProducts();
+updateShiftUI();
+updateCart();
+updateDashboard();
+renderDebts();
+renderCustomers();
+renderEmployees();
+loadPrinterSettingsUI();
+document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+
+console.log('🏪 Bilal-sale POS tayyor!');
+console.log('📦 Printer moduli: qz-print.js');
+console.log('✅ Smena yopilganda Excel avtomatik yuklanadi');
+console.log('✅ Mahsulotlar statistikasi ishlaydi');
+console.log('✅ Xotira avtomatik tozalanadi');
+console.log('✅ Nasiya bo\'limi to\'liq ishlaydi');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Node modullar
+node_modules/
+
+# Log fayllar
+*.log
+npm-debug.log*
+
+# OS fayllar
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor fayllar
+.vscode/
+.idea/
+*.swp
+*~
+
+# Vaqtinchalik
+*.tmp
+*.bak
