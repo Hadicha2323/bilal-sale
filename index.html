@@ -199,6 +199,28 @@
             min-width: 140px;
         }
 
+        /* ✅ SHTRIX-KOD MAYDONLARI */
+        .barcode-field {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+        .barcode-field input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+            font-size: 14px;
+            outline: none;
+            color: var(--text-primary);
+            min-height: 44px;
+        }
+        .barcode-field input:focus {
+            border-color: #4a9eff;
+        }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--bg-modal); border-radius: 32px; padding: 28px; max-width: 480px; width: 100%; max-height: 95vh; overflow-y: auto; border: 1px solid var(--border-color); }
@@ -557,21 +579,20 @@
                 <input type="hidden" id="productImageData">
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div class="form-group"><label>Nomi *</label><input type="text" id="productName" required></div>
-                <div class="form-group">
-                    <label>Shtrix-kod</label>
-                    <div style="display:flex;gap:6px;">
-                        <input type="text" id="productBarcode" style="flex:1;">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="generateBarcode()" title="Random kod">
-                            <i class="fas fa-random"></i>
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm" onclick="openBarcodeScanner()" title="Kamera bilan skanerlash">
-                            <i class="fas fa-camera"></i>
-                        </button>
-                    </div>
+            <div class="form-group"><label>Nomi *</label><input type="text" id="productName" required></div>
+            
+            <!-- ✅ SHTRIX-KODLAR (bir nechta) -->
+            <div class="form-group">
+                <label>Shtrix-kodlar <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">(bir nechta qo'shish mumkin)</span></label>
+                <div id="barcodesList"></div>
+                <button type="button" class="btn btn-primary btn-sm" style="margin-top:6px;width:100%;" onclick="addBarcodeField()">
+                    <i class="fas fa-plus"></i> Yana shtrix-kod qo'shish
+                </button>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;">
+                    <i class="fas fa-info-circle"></i> Bitta mahsulotga bir nechta shtrix-kod bo'lishi mumkin
                 </div>
             </div>
+
             <div class="form-group"><label>Kategoriya</label><select id="productCategory"></select></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="form-group"><label>Kelish narxi *</label><input type="number" id="productPurchase" required></div>
@@ -686,6 +707,7 @@ let selectedCategory = 'all';
 
 let pendingWeightProduct = null;
 let barcodeScanner = null;
+let currentBarcodeFieldId = null;
 
 // 📄 SAHIFALASH (25 tadan)
 let kassaPage = 0;
@@ -747,7 +769,7 @@ window.addEventListener('appinstalled', () => {
 });
 
 // ================================================================
-// SAHIFALAB YUKLASH (Supabase dan)
+// SAHIFALAB YUKLASH
 // ================================================================
 async function loadAllProductsPaginated() {
     const PAGE_SIZE = 1000;
@@ -825,11 +847,17 @@ async function loadAllFromSupabase() {
 async function saveProductToDB(product) {
     try {
         const payload = {
-            name: product.name, barcode: product.barcode,
-            category: product.category, purchase: product.purchase,
-            sell: product.sell, qty: product.qty,
-            unit: product.unit, expiry: product.expiry || null,
-            image: product.image || null, visible: product.visible !== false
+            name: product.name, 
+            barcode: product.barcode,
+            barcodes: product.barcodes || (product.barcode ? [product.barcode] : []),
+            category: product.category, 
+            purchase: product.purchase,
+            sell: product.sell, 
+            qty: product.qty,
+            unit: product.unit, 
+            expiry: product.expiry || null,
+            image: product.image || null, 
+            visible: product.visible !== false
         };
         if (product.id && products.find(p => p.id === product.id)) {
             const { error } = await db.from('products').update(payload).eq('id', product.id);
@@ -964,6 +992,95 @@ function formatQuantity(qty, unit) {
     return qty + ' dona';
 }
 
+// ✅ Mahsulotning barcha shtrix-kodlarini olish
+function getProductBarcodes(product) {
+    if (!product) return [];
+    if (product.barcodes && Array.isArray(product.barcodes) && product.barcodes.length > 0) {
+        return product.barcodes.filter(bc => bc);
+    }
+    if (product.barcode) return [product.barcode];
+    return [];
+}
+
+// ================================================================
+// SHTRIX-KODLAR (bir nechta)
+// ================================================================
+function addBarcodeField(value = '') {
+    const container = document.getElementById('barcodesList');
+    if (!container) return;
+    const id = 'barcode_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'barcode-field';
+    div.innerHTML = `
+        <input type="text" class="barcode-input" value="${value}" placeholder="Shtrix-kod">
+        <button type="button" class="btn btn-primary btn-sm" onclick="generateBarcodeForField('${id}')" title="Random kod">
+            <i class="fas fa-random"></i>
+        </button>
+        <button type="button" class="btn btn-success btn-sm" onclick="openBarcodeScannerForField('${id}')" title="Kamera bilan skanerlash">
+            <i class="fas fa-camera"></i>
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeBarcodeField('${id}')" title="O'chirish">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(div);
+}
+
+function removeBarcodeField(id) {
+    const container = document.getElementById('barcodesList');
+    if (!container) return;
+    if (container.children.length <= 1) {
+        showToast('⚠️ Kamida 1 ta shtrix-kod bo\'lishi kerak', 'warning');
+        return;
+    }
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+function generateBarcodeForField(id) {
+    let code = '';
+    for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+    const field = document.getElementById(id);
+    if (field) {
+        const input = field.querySelector('.barcode-input');
+        if (input) input.value = code;
+    }
+    return code;
+}
+
+function openBarcodeScannerForField(id) {
+    currentBarcodeFieldId = id;
+    openBarcodeScanner();
+}
+
+function getAllBarcodes() {
+    const inputs = document.querySelectorAll('#barcodesList .barcode-input');
+    const barcodes = [];
+    inputs.forEach(inp => {
+        const val = inp.value.trim();
+        if (val && !barcodes.includes(val)) {
+            barcodes.push(val);
+        }
+    });
+    return barcodes;
+}
+
+function clearBarcodeFields() {
+    const container = document.getElementById('barcodesList');
+    if (container) container.innerHTML = '';
+}
+
+function renderBarcodeFields(barcodes) {
+    clearBarcodeFields();
+    if (!barcodes || barcodes.length === 0) {
+        addBarcodeField('');
+    } else {
+        barcodes.forEach(bc => addBarcodeField(bc));
+    }
+}
+
 // ================================================================
 // SHTRIX-KOD SKANER (kamera)
 // ================================================================
@@ -1005,8 +1122,21 @@ function openBarcodeScanner() {
                 { facingMode: "environment" },
                 config,
                 (decodedText) => {
-                    document.getElementById('productBarcode').value = decodedText;
-                    showToast('✅ Shtrix-kod: ' + decodedText, 'success');
+                    if (currentBarcodeFieldId) {
+                        const field = document.getElementById(currentBarcodeFieldId);
+                        if (field) {
+                            const input = field.querySelector('.barcode-input');
+                            if (input) {
+                                input.value = decodedText;
+                                showToast('✅ Shtrix-kod: ' + decodedText, 'success');
+                            }
+                        }
+                        currentBarcodeFieldId = null;
+                    } else {
+                        const oldInput = document.getElementById('productBarcode');
+                        if (oldInput) oldInput.value = decodedText;
+                        showToast('✅ Shtrix-kod: ' + decodedText, 'success');
+                    }
                     closeBarcodeScanner();
                 },
                 (errorMessage) => { }
@@ -1014,11 +1144,13 @@ function openBarcodeScanner() {
                 console.error('Skaner xatosi:', err);
                 showToast('❌ Kamera ochilmadi: ' + (err.message || 'ruxsat bering'), 'error');
                 closeBarcodeScanner();
+                currentBarcodeFieldId = null;
             });
         } catch (err) {
             console.error('Skaner yaratishda xato:', err);
             showToast('❌ Skaner xatosi: ' + err.message, 'error');
             closeBarcodeScanner();
+            currentBarcodeFieldId = null;
         }
     }, 300);
 }
@@ -1026,6 +1158,7 @@ function openBarcodeScanner() {
 function closeBarcodeScanner() {
     const modal = document.getElementById('barcodeScannerModal');
     modal.classList.remove('active');
+    currentBarcodeFieldId = null;
     if (barcodeScanner) {
         barcodeScanner.stop().then(() => {
             barcodeScanner.clear();
@@ -1211,7 +1344,26 @@ function printReceiptViaBrowser(sale) {
 function printProductLabel(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) { showToast('❌ Mahsulot topilmadi!', 'error'); return; }
-    printLabel(product);
+    
+    const barcodes = getProductBarcodes(product);
+    if (barcodes.length === 0) {
+        showToast('⚠️ Shtrix-kod yo\'q!', 'warning');
+        return;
+    }
+    
+    if (barcodes.length > 1) {
+        let options = barcodes.map((bc, i) => `${i + 1}. ${bc}`).join('\n');
+        const choice = prompt(`Qaysi shtrix-kod bilan etiketka chiqarilsin?\n\n${options}\n\nRaqamni kiriting (1-${barcodes.length}):`, '1');
+        if (choice === null) return;
+        const idx = parseInt(choice) - 1;
+        if (idx < 0 || idx >= barcodes.length) {
+            showToast('❌ Noto\'g\'ri tanlov!', 'error');
+            return;
+        }
+        printLabel({ ...product, barcode: barcodes[idx] });
+    } else {
+        printLabel({ ...product, barcode: barcodes[0] });
+    }
 }
 
 async function printLabel(product) {
@@ -1256,7 +1408,12 @@ function printLabelViaBrowser(product) {
 }
 
 function testLabelPrint() {
-    printLabel({ id: 999, name: 'TEST MAHSULOT', sell: 12345, barcode: '9990000073702' });
+    printLabel({ 
+        id: 999, 
+        name: 'TEST MAHSULOT', 
+        sell: 12345, 
+        barcode: '9990000073702'
+    });
 }
 
 function testReceiptPrint() {
@@ -1301,10 +1458,11 @@ function renderKassaProducts(resetPage = true) {
     let filtered = products.filter(p => p.visible !== false);
     
     if (search) {
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(search) || 
-            (p.barcode && p.barcode.includes(search))
-        );
+        filtered = filtered.filter(p => {
+            if (p.name.toLowerCase().includes(search)) return true;
+            const barcodes = getProductBarcodes(p);
+            return barcodes.some(bc => bc && bc.includes(search));
+        });
     }
     if (selectedCategory !== 'all') filtered = filtered.filter(p => p.category === selectedCategory);
 
@@ -1392,7 +1550,14 @@ function renderProductsTable(resetPage = true) {
         <td>${p.image ? `<img src="${p.image}" class="product-image">` : `<div class="product-image placeholder"><i class="fas fa-box"></i></div>`}</td>
         <td><strong>${p.name}</strong></td>
         <td>${p.category || '—'}</td>
-        <td style="font-family:monospace;font-size:11px;">${p.barcode || '-'}</td>
+        <td style="font-family:monospace;font-size:11px;">
+            ${(() => {
+                const barcodes = getProductBarcodes(p);
+                if (barcodes.length === 0) return '-';
+                if (barcodes.length === 1) return barcodes[0];
+                return barcodes.map(bc => `<div style="padding:2px 0;">${bc}</div>`).join('') + `<div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">(${barcodes.length} ta)</div>`;
+            })()}
+        </td>
         <td>${formatNumber(p.purchase)} so'm</td>
         <td>${formatNumber(p.sell)} so'm</td>
         <td>${p.unit === 'kg' ? formatQuantity(p.qty, 'kg') : p.qty + ' dona'}</td>
@@ -1400,7 +1565,6 @@ function renderProductsTable(resetPage = true) {
         <td><button class="print-label-btn" onclick="printProductLabel(${p.id})"><i class="fas fa-print"></i> Etiketka</button></td>
     </tr>`).join('');
 
-    // ✅ Pagination qo'shish
     if (hasMore) {
         tbody.innerHTML += `
             <tr>
@@ -1433,7 +1597,6 @@ function renderProductsTable(resetPage = true) {
     }
 }
 
-// ✅ Yana 25 ta yuklash
 function loadMoreProductsTable() {
     productsPage++;
     renderProductsTable(false);
@@ -1449,7 +1612,6 @@ function loadMoreProductsTable() {
     }, 100);
 }
 
-// ✅ Hammasini ko'rsatish
 function showAllProductsTable() {
     productsPage = Math.ceil(products.length / PRODUCTS_PAGE_SIZE);
     renderProductsTable(false);
@@ -1874,10 +2036,10 @@ function showProductModal(data = null) {
     const modal = document.getElementById('productModal');
     const title = document.getElementById('modalTitle');
     renderCategorySelect();
+    
     if (data) {
         title.innerHTML = '<i class="fas fa-edit"></i> Tahrirlash';
         document.getElementById('productName').value = data.name;
-        document.getElementById('productBarcode').value = data.barcode || '';
         document.getElementById('productCategory').value = data.category || '';
         document.getElementById('productPurchase').value = data.purchase;
         document.getElementById('productSell').value = data.sell;
@@ -1885,6 +2047,10 @@ function showProductModal(data = null) {
         document.getElementById('productUnit').value = data.unit || 'dona';
         document.getElementById('productExpiry').value = data.expiry || '';
         document.getElementById('editProductId').value = data.id;
+
+        // ✅ Shtrix-kodlarni ko'rsatish
+        const barcodes = getProductBarcodes(data);
+        renderBarcodeFields(barcodes);
 
         if (data.image) {
             document.getElementById('productImageData').value = data.image;
@@ -1898,7 +2064,11 @@ function showProductModal(data = null) {
         document.getElementById('productForm').reset();
         document.getElementById('editProductId').value = '';
         clearProductImage();
-        generateBarcode();
+        
+        // ✅ Yangi shtrix-kod maydoni (random kod bilan)
+        clearBarcodeFields();
+        const randomCode = generateBarcode(true);
+        addBarcodeField(randomCode);
     }
     modal.classList.add('active');
 }
@@ -1907,7 +2077,14 @@ async function saveProduct(e) {
     e.preventDefault();
     const id = document.getElementById('editProductId').value;
     const name = document.getElementById('productName').value.trim();
-    const barcode = document.getElementById('productBarcode').value.trim();
+    
+    // ✅ Barcha shtrix-kodlarni olish
+    let barcodes = getAllBarcodes();
+    if (barcodes.length === 0) {
+        barcodes = [generateBarcode(true)];
+    }
+    const firstBarcode = barcodes[0];
+    
     const category = document.getElementById('productCategory').value;
     const purchase = parseFloat(document.getElementById('productPurchase').value) || 0;
     const sell = parseFloat(document.getElementById('productSell').value) || 0;
@@ -1915,6 +2092,7 @@ async function saveProduct(e) {
     const unit = document.getElementById('productUnit').value;
     const expiry = document.getElementById('productExpiry').value;
     const image = document.getElementById('productImageData').value || null;
+    
     if (!name || purchase <= 0 || sell <= 0 || qty <= 0) { showToast('❌ Barcha maydonlarni to\'ldiring!', 'error'); return; }
     if (sell <= purchase) { showToast('❌ Sotish narxi katta bo\'lishi kerak!', 'error'); return; }
 
@@ -1923,7 +2101,15 @@ async function saveProduct(e) {
         if (qty >= 100) qtyToSave = qty / 1000;
     }
 
-    const productData = { name, barcode: barcode || generateBarcode(true), category, purchase, sell, qty: qtyToSave, unit, expiry, image, visible: true };
+    const productData = { 
+        name, 
+        barcode: firstBarcode,
+        barcodes: barcodes,
+        category, purchase, sell, 
+        qty: qtyToSave, unit, expiry, image, 
+        visible: true 
+    };
+    
     if (id) {
         const index = products.findIndex(p => p.id === parseInt(id));
         if (index !== -1) {
@@ -1940,7 +2126,7 @@ async function saveProduct(e) {
         showToast('✅ Yangi mahsulot!', 'success');
     }
     renderKassaProducts(); 
-    renderProductsTable(true);  // ✅ Sahifani 0 ga qaytarish
+    renderProductsTable(true);
     updateProductStats();
     closeModal('productModal');
 }
@@ -1951,7 +2137,7 @@ async function deleteProduct(id) {
         await deleteProductFromDB(id);
         products = products.filter(p => p.id !== id);
         renderKassaProducts(); 
-        renderProductsTable(false);  // ✅ Sahifani saqlab qolish
+        renderProductsTable(false);
         updateProductStats();
         showToast('🗑️ O\'chirildi', 'info');
     }
@@ -2138,7 +2324,11 @@ document.addEventListener('keydown', function(e) {
         if (document.activeElement === document.getElementById('searchInput')) {
             const search = document.getElementById('searchInput')?.value?.trim() || '';
             if (search) {
-                const product = products.find(p => (p.barcode && p.barcode === search) || p.name.toLowerCase() === search.toLowerCase());
+                const product = products.find(p => {
+                    if (p.name.toLowerCase() === search.toLowerCase()) return true;
+                    const barcodes = getProductBarcodes(p);
+                    return barcodes.some(bc => bc && bc === search);
+                });
                 if (product) { addToCart(product.id); document.getElementById('searchInput').value = ''; showToast('✅ ' + product.name, 'success'); }
                 else { showToast('❌ Topilmadi!', 'error'); }
             }
@@ -2146,7 +2336,11 @@ document.addEventListener('keydown', function(e) {
         }
         if (scanBuffer.length > 0) {
             const search = scanBuffer.trim();
-            const product = products.find(p => (p.barcode && p.barcode === search) || p.name.toLowerCase() === search.toLowerCase());
+            const product = products.find(p => {
+                if (p.name.toLowerCase() === search.toLowerCase()) return true;
+                const barcodes = getProductBarcodes(p);
+                return barcodes.some(bc => bc && bc === search);
+            });
             if (product) { addToCart(product.id); showToast('✅ ' + product.name, 'success'); }
             scanBuffer = '';
             if (scanTimeout) { clearTimeout(scanTimeout); scanTimeout = null; }
@@ -2237,6 +2431,7 @@ async function boot() {
     document.getElementById('loadingOverlay').classList.remove('active');
 
     console.log('🏪 Bilal-sale POS + Supabase tayyor!');
+    console.log('📦 Bir nechta shtrix-kod qo\'shish mumkin');
     console.log('📄 Mahsulotlar 25 tadan sahifalab ko\'rsatiladi');
     console.log('📸 Rasm yuklash qo\'shildi');
     console.log('⚖️ Kiloli mahsulotlar (gramm/kg) qo\'shildi');
