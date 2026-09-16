@@ -66,7 +66,6 @@
         .menu-item:hover { background: rgba(74, 158, 255, 0.06); color: var(--text-primary); }
         .menu-item.active { background: var(--btn-primary); color: white; }
 
-        /* ✅ SECTIONS — position: relative QO'SHILDI */
         .section-container { display: none; animation: fadeIn 0.5s ease; flex: 1; overflow-y: auto; padding-bottom: 20px; position: relative; }
         .section-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -146,7 +145,9 @@
         .total-row .total-amount { color: var(--icon-color); font-size: 22px; }
 
         .pay-big-btn { width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: none; border-radius: 60px; background: var(--btn-success); color: white; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; min-height: 56px; }
-        .pay-big-btn:hover { transform: translateY(-3px); }        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
+        .pay-big-btn:hover { transform: translateY(-3px); }
+        
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
         .payment-modal.active { display: flex; }
         .payment-modal-content { background: var(--bg-modal); border-radius: 32px; padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
         .payment-modal-content h2 { color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 20px; }
@@ -162,7 +163,6 @@
         .payment-modal-content .pay-total .amount { color: var(--icon-color); }
         .payment-modal-content .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-        /* ✅ PRODUCTS HEADER — STICKY (top: -1px, z-index: 100) */
         .products-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; position: sticky; top: -1px; z-index: 100; background: var(--bg-card); backdrop-filter: blur(12px); padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(60, 80, 120, 0.08); }
         .products-header h2 { color: var(--text-primary); display: flex; align-items: center; gap: 6px; font-size: 18px; }
 
@@ -175,6 +175,29 @@
         .products-table .action-btn { border: none; background: transparent; padding: 6px 10px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); }
         .products-table .action-btn.danger { color: #ff7e7e; }
         .products-table .print-label-btn { background: var(--btn-primary); color: white; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .products-table tbody tr { transition: background 0.2s ease; }
+        .products-table tbody tr:hover { background: rgba(74, 158, 255, 0.04); }
+
+        /* ✅ PAGINATION STILLARI */
+        .pagination-info {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-menu);
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        .pagination-btns {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+        .pagination-btns .btn {
+            min-width: 140px;
+        }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
         .modal-overlay.active { display: flex; }
@@ -291,7 +314,8 @@
         }
         @media (max-width: 380px) { .products-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .payment-modal-content .pay-methods { grid-template-columns: repeat(2, 1fr); } }
     </style>
-</head><body>
+</head>
+<body>
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
@@ -618,7 +642,9 @@
         <button class="btn btn-primary btn-sm" onclick="installPWA()"><i class="fas fa-download"></i> O'rnatish</button>
         <button class="btn btn-danger btn-sm" onclick="closePwaBanner()"><i class="fas fa-times"></i></button>
     </div>
-</div><script>
+</div>
+
+<script>
 // ================================================================
 // SUPABASE SOZLAMALARI
 // ================================================================
@@ -648,7 +674,6 @@ let debts = [];
 let employees = [];
 let salesHistory = [];
 
-// ✅ Smena localStorage'dan tiklanadi
 let shiftOpen = localStorage.getItem('bilal_shift_open') === 'true';
 let shiftNumber = localStorage.getItem('bilal_shift_number') || '---';
 let shiftCashier = localStorage.getItem('bilal_shift_cashier') || '';
@@ -659,18 +684,18 @@ let dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
 let selectedPayMethod = 'naxt';
 let selectedCategory = 'all';
 
-// ⚖️ GRAMM/KG uchun
 let pendingWeightProduct = null;
-
-// 📷 SHTRIX-KOD SKANER uchun
 let barcodeScanner = null;
 
-// 📄 KASSA SAHIFALASH
+// 📄 SAHIFALASH (25 tadan)
 let kassaPage = 0;
-const KASSA_PAGE_SIZE = 100;
+const KASSA_PAGE_SIZE = 25;
+
+let productsPage = 0;
+const PRODUCTS_PAGE_SIZE = 25;
 
 // ================================================================
-// 📱 PWA — SERVICE WORKER + O'RNATISH
+// PWA
 // ================================================================
 let deferredPrompt = null;
 
@@ -722,7 +747,7 @@ window.addEventListener('appinstalled', () => {
 });
 
 // ================================================================
-// ✅ SAHIFALAB YUKLASH (pagination)
+// SAHIFALAB YUKLASH (Supabase dan)
 // ================================================================
 async function loadAllProductsPaginated() {
     const PAGE_SIZE = 1000;
@@ -752,7 +777,6 @@ async function loadAllProductsPaginated() {
         if (loadingText) {
             loadingText.textContent = `Mahsulotlar yuklanmoqda... ${allProducts.length} ta`;
         }
-        console.log(`📦 Sahifa ${pageNum}: ${allProducts.length} ta yuklandi`);
     }
 
     console.log('✅ Jami mahsulotlar:', allProducts.length);
@@ -941,7 +965,7 @@ function formatQuantity(qty, unit) {
 }
 
 // ================================================================
-// 📷 SHTRIX-KOD SKANER (kamera)
+// SHTRIX-KOD SKANER (kamera)
 // ================================================================
 function openBarcodeScanner() {
     const modal = document.getElementById('barcodeScannerModal');
@@ -1014,7 +1038,7 @@ function closeBarcodeScanner() {
 }
 
 // ================================================================
-// 📸 RASM YUKLASH
+// RASM YUKLASH
 // ================================================================
 function handleProductImage(event) {
     const file = event.target.files[0];
@@ -1070,7 +1094,9 @@ function clearProductImage() {
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('productImageCamera').value = '';
     document.getElementById('productImageGallery').value = '';
-}// ================================================================
+}
+
+// ================================================================
 // PRINTER
 // ================================================================
 function loadPrinterSettingsUI() {
@@ -1249,7 +1275,7 @@ function initDefaultProducts() {
 }
 
 // ================================================================
-// KASSA — SAHIFALAB KO'RSATISH
+// KASSA — SAHIFALAB KO'RSATISH (25 TADAN)
 // ================================================================
 function renderKassaProducts(resetPage = true) {
     const grid = document.getElementById('productsGrid');
@@ -1334,10 +1360,16 @@ function filterProducts() {
     renderKassaProducts(); 
 }
 
-function renderProductsTable() {
+// ================================================================
+// MAHSULOTLAR JADVALI — SAHIFALAB KO'RSATISH (25 TADAN)
+// ================================================================
+function renderProductsTable(resetPage = true) {
     const tbody = document.getElementById('productsTableBody');
     if (!tbody) return;
     updateProductStats();
+    
+    if (resetPage) productsPage = 0;
+    
     if (products.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="9" style="text-align:center;padding:40px 20px;">
@@ -1350,7 +1382,13 @@ function renderProductsTable() {
         `;
         return;
     }
-    tbody.innerHTML = products.map(p => `<tr>
+
+    const endIndex = (productsPage + 1) * PRODUCTS_PAGE_SIZE;
+    const displayProducts = products.slice(0, endIndex);
+    const hasMore = products.length > endIndex;
+    const remaining = products.length - endIndex;
+
+    tbody.innerHTML = displayProducts.map(p => `<tr>
         <td>${p.image ? `<img src="${p.image}" class="product-image">` : `<div class="product-image placeholder"><i class="fas fa-box"></i></div>`}</td>
         <td><strong>${p.name}</strong></td>
         <td>${p.category || '—'}</td>
@@ -1361,6 +1399,61 @@ function renderProductsTable() {
         <td><button class="action-btn" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></td>
         <td><button class="print-label-btn" onclick="printProductLabel(${p.id})"><i class="fas fa-print"></i> Etiketka</button></td>
     </tr>`).join('');
+
+    // ✅ Pagination qo'shish
+    if (hasMore) {
+        tbody.innerHTML += `
+            <tr>
+                <td colspan="9" style="padding:16px;text-align:center;background:var(--bg-menu);border-radius:12px;">
+                    <div class="pagination-btns">
+                        <button class="btn btn-primary" onclick="loadMoreProductsTable()">
+                            <i class="fas fa-plus-circle"></i> Yana ${Math.min(PRODUCTS_PAGE_SIZE, remaining)} ta yuklash
+                        </button>
+                        <button class="btn btn-warning" onclick="showAllProductsTable()">
+                            <i class="fas fa-list"></i> Hammasini ko'rsatish (${products.length} ta)
+                        </button>
+                    </div>
+                    <div class="pagination-info">
+                        📦 <b>${displayProducts.length}</b> / <b>${products.length}</b> mahsulot ko'rsatilmoqda
+                        ${remaining > 0 ? ` · Yana <b>${remaining}</b> ta yuklanmagan` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    } else if (products.length > PRODUCTS_PAGE_SIZE) {
+        tbody.innerHTML += `
+            <tr>
+                <td colspan="9" style="padding:12px;text-align:center;">
+                    <div class="pagination-info">
+                        ✅ Barcha <b>${products.length}</b> ta mahsulot ko'rsatildi
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// ✅ Yana 25 ta yuklash
+function loadMoreProductsTable() {
+    productsPage++;
+    renderProductsTable(false);
+    setTimeout(() => {
+        const tbody = document.getElementById('productsTableBody');
+        if (tbody) {
+            const rows = tbody.querySelectorAll('tr');
+            const targetRow = rows[productsPage * PRODUCTS_PAGE_SIZE];
+            if (targetRow) {
+                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, 100);
+}
+
+// ✅ Hammasini ko'rsatish
+function showAllProductsTable() {
+    productsPage = Math.ceil(products.length / PRODUCTS_PAGE_SIZE);
+    renderProductsTable(false);
+    showToast('✅ Barcha mahsulotlar ko\'rsatildi', 'success');
 }
 
 function updateProductStats() {
@@ -1568,7 +1661,9 @@ async function completeSale(total, payments, originalTotal) {
         const product = products.find(p => p.id === c.id);
         if (product) { product.qty -= c.qty; await updateProductQtyInDB(product.id, product.qty); }
     }
-    renderKassaProducts(); renderProductsTable(); updateProductStats();
+    renderKassaProducts(); 
+    renderProductsTable(false); 
+    updateProductStats();
     if (payments.naxt > 0) dailyStats.naxt += payments.naxt;
     if (payments.uzcard > 0) dailyStats.uzcard += payments.uzcard;
     if (payments.humo > 0) dailyStats.humo += payments.humo;
@@ -1582,7 +1677,9 @@ async function completeSale(total, payments, originalTotal) {
     cart = []; updateCart(); discountPercent = 0;
     document.getElementById('discountBtn').innerHTML = `<span class="icon"><i class="fas fa-percent"></i></span>Chegirma`;
     showToast('✅ Sotuv: ' + formatNumber(total) + ' so\'m', 'success');
-}// ================================================================
+}
+
+// ================================================================
 // NASIYA
 // ================================================================
 function showDebtorModal() {
@@ -1608,7 +1705,7 @@ async function confirmDebtor() {
             const product = products.find(p => p.id === c.id);
             if (product) { product.qty -= c.qty; await updateProductQtyInDB(product.id, product.qty); }
         }
-        renderKassaProducts(); renderProductsTable(); updateProductStats();
+        renderKassaProducts(); renderProductsTable(false); updateProductStats();
         const debt = { name, surname, phone, date, amount: totalWithDiscount, remaining: totalWithDiscount, paid: 0, status: 'active', items: soldItems };
         const savedDebt = await saveDebtToDB(debt);
         if (!savedDebt) return;
@@ -1842,7 +1939,9 @@ async function saveProduct(e) {
         products.push(newProduct);
         showToast('✅ Yangi mahsulot!', 'success');
     }
-    renderKassaProducts(); renderProductsTable(); updateProductStats();
+    renderKassaProducts(); 
+    renderProductsTable(true);  // ✅ Sahifani 0 ga qaytarish
+    updateProductStats();
     closeModal('productModal');
 }
 
@@ -1851,7 +1950,9 @@ async function deleteProduct(id) {
     if (confirm('Mahsulotni o\'chirishni xohlaysizmi?')) {
         await deleteProductFromDB(id);
         products = products.filter(p => p.id !== id);
-        renderKassaProducts(); renderProductsTable(); updateProductStats();
+        renderKassaProducts(); 
+        renderProductsTable(false);  // ✅ Sahifani saqlab qolish
+        updateProductStats();
         showToast('🗑️ O\'chirildi', 'info');
     }
 }
@@ -1865,11 +1966,10 @@ function generateBarcode(returnOnly = false) {
 }
 
 // ================================================================
-// SMENA — localStorage BILAN SAQLANADI
+// SMENA
 // ================================================================
 function toggleShift() {
     if (!shiftOpen) {
-        // ✅ SMENA OCHISH
         const name = prompt('Kassir ismini kiriting:');
         if (!name) return;
         const password = prompt('Parolni kiriting:');
@@ -1882,7 +1982,6 @@ function toggleShift() {
         shiftNumber = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
         dailySales = 0; cart = []; dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
         
-        // ✅ localStorage'ga saqlash
         localStorage.setItem('bilal_shift_open', 'true');
         localStorage.setItem('bilal_shift_number', shiftNumber);
         localStorage.setItem('bilal_shift_cashier', shiftCashier);
@@ -1891,7 +1990,6 @@ function toggleShift() {
         updateCart(); updateShiftUI(); updateDashboard();
         showToast('✅ Smena ochildi! ' + shiftCashier, 'success');
     } else {
-        // ✅ SMENA YOPISH (faqat qo'lda)
         if (confirm('Smenani yopishni xohlaysizmi?\n\n⚠️ Smena faqat siz tasdiqlaganingizda yopiladi.')) {
             downloadShiftExcel();
             shiftOpen = false; shiftCashier = ''; shiftNumber = '---';
@@ -2112,7 +2210,6 @@ async function boot() {
     document.getElementById('loadingOverlay').classList.add('active');
     document.getElementById('loadingText').textContent = 'Supabase\'ga ulanmoqda...';
 
-    // ✅ Smena tiklanganini tekshirish
     if (shiftOpen && shiftCashier) {
         console.log('🔄 Smena tiklandi:', shiftCashier, '#' + shiftNumber);
     }
@@ -2140,10 +2237,10 @@ async function boot() {
     document.getElementById('loadingOverlay').classList.remove('active');
 
     console.log('🏪 Bilal-sale POS + Supabase tayyor!');
+    console.log('📄 Mahsulotlar 25 tadan sahifalab ko\'rsatiladi');
     console.log('📸 Rasm yuklash qo\'shildi');
     console.log('⚖️ Kiloli mahsulotlar (gramm/kg) qo\'shildi');
     console.log('📷 Kamera orqali shtrix-kod skaner qo\'shildi');
-    console.log('📄 Sahifalab yuklash (1000 tadan)');
     console.log('⚠️ Kam qolgan mahsulotlar (5 tadan) qizarib ko\'rinadi');
     console.log('💾 Smena localStorage\'da saqlanadi');
     console.log('📱 PWA rejimi faol');
