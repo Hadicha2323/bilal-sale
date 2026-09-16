@@ -49,38 +49,10 @@
             --toggle-active: #4a9eff;
         }
 
-        body.dark-mode {
-            --bg-primary: #1a1a2e;
-            --bg-card: rgba(30, 30, 60, 0.92);
-            --bg-card-hover: rgba(255, 255, 255, 0.05);
-            --bg-menu: rgba(255, 255, 255, 0.04);
-            --bg-input: rgba(255, 255, 255, 0.04);
-            --bg-modal: rgba(30, 30, 60, 0.95);
-            --text-primary: #e8e0d8;
-            --text-secondary: #a8b5ff;
-            --text-muted: #6a7a8a;
-            --border-color: rgba(255, 255, 255, 0.04);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --stat-bg: rgba(255, 255, 255, 0.02);
-            --product-bg: rgba(255, 255, 255, 0.02);
-            --cart-bg: rgba(255, 255, 255, 0.02);
-            --toast-bg: rgba(30, 30, 60, 0.95);
-            --debt-bg: rgba(255, 255, 255, 0.02);
-            --icon-color: #4a9eff;
-            --toggle-bg: #3a3a5a;
-            --toggle-active: #4a9eff;
-        }
-
         html, body { width: 100%; min-height: 100vh; height: 100%; overflow-x: hidden; }
         body { background: var(--bg-primary); min-height: 100vh; min-height: 100dvh; padding: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.4s ease; }
-        
-        .dark-toggle { position: fixed; top: 12px; right: 12px; z-index: 999; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 60px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; color: var(--text-primary); box-shadow: 0 4px 15px var(--shadow-color); backdrop-filter: blur(8px); font-size: 13px; font-weight: 600; min-height: 40px; }
-        .dark-toggle:hover { transform: scale(1.05); }
-        .dark-toggle i { font-size: 18px; color: var(--icon-color); }
-        .dark-toggle .toggle-track { width: 40px; height: 22px; background: var(--toggle-bg); border-radius: 22px; position: relative; transition: 0.3s; }
-        .dark-toggle .toggle-track .toggle-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
-        body.dark-mode .dark-toggle .toggle-track .toggle-thumb { left: 21px; }
-        body.dark-mode .dark-toggle .toggle-track { background: var(--toggle-active); }
+
+        /* ⚠️ .dark-toggle OLIB TASHLANDI */
 
         .pos-container { max-width: 100%; width: 100%; margin: 0 auto; background: var(--bg-card); backdrop-filter: blur(24px) saturate(180%); border-radius: 32px; box-shadow: 0 25px 70px -25px var(--shadow-color); padding: 16px 20px 20px; border: 1px solid var(--border-color); position: relative; overflow: hidden; z-index: 1; min-height: calc(100vh - 16px); display: flex; flex-direction: column; transition: all 0.4s ease; }
 
@@ -147,6 +119,7 @@
         .product-item .image img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
         .product-item .name { font-weight: 600; font-size: 12px; color: var(--text-primary); margin-top: 2px; }
         .product-item .price { font-size: 14px; color: var(--icon-color); font-weight: 700; margin-top: 2px; }
+        .product-item .unit-badge { font-size: 10px; color: var(--text-secondary); background: var(--bg-menu); padding: 1px 8px; border-radius: 20px; margin-top: 2px; }
 
         .cart-panel { background: var(--cart-bg); border-radius: 20px; padding: 14px; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: 350px; }
         .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid var(--border-color); }
@@ -233,7 +206,6 @@
 
         .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(240, 235, 229, 0.95); z-index: 99999; display: none; justify-content: center; align-items: center; flex-direction: column; gap: 16px; }
         .loading-overlay.active { display: flex; }
-        body.dark-mode .loading-overlay { background: rgba(26, 26, 46, 0.95); }
         .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(74, 158, 255, 0.15); border-top-color: #4a9eff; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: var(--text-primary); font-weight: 600; font-size: 14px; text-align: center; padding: 0 20px; }
@@ -248,6 +220,15 @@
         .image-preview { margin-top: 10px; display: none; position: relative; }
         .image-preview img { max-width: 150px; max-height: 150px; border-radius: 12px; border: 2px solid var(--border-color); display: block; }
         .image-preview .clear-img-btn { position: absolute; top: -8px; right: -8px; background: var(--btn-danger); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+        /* ⚖️ GRAMM/KG KIRITISH UCHUN QO'SHIMCHA STILLAR */
+        .weight-input-wrap { display: flex; gap: 8px; align-items: center; }
+        .weight-input-wrap input { flex: 1; }
+        .weight-input-wrap .quick-weight-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+        .weight-input-wrap .quick-weight-btns button { padding: 4px 10px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); border-radius: 20px; font-size: 11px; cursor: pointer; transition: all 0.2s ease; font-weight: 600; }
+        .weight-input-wrap .quick-weight-btns button:hover { background: var(--btn-primary); color: white; }
+        .weight-hint { font-size: 11px; color: var(--text-secondary); margin-top: 4px; display: block; }
+        .weight-hint b { color: var(--icon-color); }
 
         /* 📱 PWA O'RNATISH BANNERI */
         .pwa-install-banner { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--bg-modal); border: 1px solid var(--border-color); border-radius: 20px; padding: 14px 20px; display: none; align-items: center; gap: 12px; box-shadow: 0 10px 40px var(--shadow-color); z-index: 10000; backdrop-filter: blur(12px); max-width: calc(100% - 32px); }
@@ -309,11 +290,7 @@
     <div class="loading-text" id="loadingText">Supabase'ga ulanmoqda...</div>
 </div>
 
-<button class="dark-toggle" onclick="toggleDarkMode()" title="Tungi rejim">
-    <i class="fas fa-moon"></i>
-    <span class="toggle-track"><span class="toggle-thumb"></span></span>
-    <i class="fas fa-sun"></i>
-</button>
+<!-- ⚠️ TUNGI REJIM TUGMASI OLIB TASHLANDI -->
 
 <div class="pos-container">
     <div class="header">
@@ -552,7 +529,7 @@
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div class="form-group"><label>Miqdor *</label><input type="number" id="productQty" required></div>
-                <div class="form-group"><label>Birlik</label><select id="productUnit"><option value="dona">Dona</option><option value="kg">Kilogramm</option></select></div>
+                <div class="form-group"><label>Birlik</label><select id="productUnit"><option value="dona">Dona</option><option value="kg">Kilogramm (kg/g)</option></select></div>
             </div>
             <div class="form-group"><label>Muddat</label><input type="date" id="productExpiry"></div>
             <input type="hidden" id="editProductId">
@@ -561,6 +538,33 @@
                 <button type="button" class="btn" onclick="closeModal('productModal')"><i class="fas fa-times"></i> Bekor</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ⚖️ GRAMM/KG KIRITISH MODAL -->
+<div class="modal-overlay" id="weightModal">
+    <div class="modal">
+        <h2 id="weightModalTitle"><i class="fas fa-weight-hanging"></i> Miqdorni kiriting</h2>
+        <div class="form-group">
+            <label>Miqdor (gramm yoki kg)</label>
+            <div class="weight-input-wrap">
+                <input type="number" id="weightInput" placeholder="Masalan: 1200 yoki 1.2" step="0.001" min="0" autofocus>
+                <span style="font-size:13px;color:var(--text-secondary);font-weight:600;">g</span>
+            </div>
+            <div class="quick-weight-btns" style="margin-top:8px;">
+                <button type="button" onclick="setQuickWeight(100)">100g</button>
+                <button type="button" onclick="setQuickWeight(200)">200g</button>
+                <button type="button" onclick="setQuickWeight(500)">500g</button>
+                <button type="button" onclick="setQuickWeight(1000)">1 kg</button>
+                <button type="button" onclick="setQuickWeight(2000)">2 kg</button>
+                <button type="button" onclick="setQuickWeight(5000)">5 kg</button>
+            </div>
+            <span class="weight-hint" id="weightHint">Grammda kiriting (masalan <b>1200</b> = 1.200 kg). Yoki kg kiriting (<b>1.2</b> = 1 kg 200 g).</span>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn btn-success" onclick="confirmWeight()"><i class="fas fa-check"></i> Qo'shish</button>
+            <button class="btn" onclick="closeModal('weightModal')"><i class="fas fa-times"></i> Bekor qilish</button>
+        </div>
     </div>
 </div>
 
@@ -616,12 +620,14 @@ let dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
 let selectedPayMethod = 'naxt';
 let selectedCategory = 'all';
 
+// ⚖️ GRAMM/KG uchun
+let pendingWeightProduct = null;
+
 // ================================================================
 // 📱 PWA — SERVICE WORKER + O'RNATISH
 // ================================================================
 let deferredPrompt = null;
 
-// Service Worker ro'yxatga olish
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
@@ -630,11 +636,9 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// PWA o'rnatish tugmasi
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    // 3 soniyadan keyin bannerni ko'rsatish
     setTimeout(() => {
         const banner = document.getElementById('pwaInstallBanner');
         if (banner && !localStorage.getItem('bilal_pwa_dismissed')) {
@@ -653,8 +657,6 @@ function installPWA() {
         if (choice.outcome === 'accepted') {
             console.log('✅ PWA o\'rnatildi');
             showToast('✅ Ilova o\'rnatildi!', 'success');
-        } else {
-            console.log('❌ PWA rad etildi');
         }
         deferredPrompt = null;
         closePwaBanner();
@@ -667,7 +669,6 @@ function closePwaBanner() {
     localStorage.setItem('bilal_pwa_dismissed', 'true');
 }
 
-// Ilova allaqachon o'rnatilgan bo'lsa — bannerni ko'rsatmaslik
 window.addEventListener('appinstalled', () => {
     console.log('✅ PWA o\'rnatildi');
     closePwaBanner();
@@ -838,14 +839,21 @@ async function saveCategoryToDB(cat) {
 // ================================================================
 // YORDAMCHI
 // ================================================================
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('bilal_dark_mode', document.body.classList.contains('dark-mode') ? 'true' : 'false');
-}
-
 function formatNumber(num) {
     if (num === undefined || num === null || isNaN(num)) return '0';
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// ⚖️ Miqdorni chiroyli formatlash: 1.200 kg yoki 200 g
+function formatQuantity(qty, unit) {
+    if (unit === 'kg') {
+        // Agar 1000 dan kichik bo'lsa — grammda
+        if (qty < 1) {
+            return Math.round(qty * 1000) + ' g';
+        }
+        return qty.toFixed(3).replace(/\.?0+$/, '') + ' kg';
+    }
+    return qty + ' dona';
 }
 
 // ================================================================
@@ -997,7 +1005,7 @@ function printReceiptViaBrowser(sale) {
     <div class="info-line"><span>Vaqt:</span><span>${now.toLocaleTimeString('uz')}</span></div>
     ${shiftCashier ? `<div class="info-line"><span>Kassir:</span><span>${shiftCashier}</span></div>` : ''}
     <div class="divider"></div>
-    ${sale.items.map(item => `<div class="item-name">${item.name}</div><div class="item-detail"><span>${item.qty} x ${formatNumber(item.sell)}</span><span>${formatNumber(item.sell * item.qty)} so'm</span></div>`).join('')}
+    ${sale.items.map(item => `<div class="item-name">${item.name}</div><div class="item-detail"><span>${formatQuantity(item.qty, item.unit)} × ${formatNumber(item.sell)}</span><span>${formatNumber(item.sell * item.qty)} so'm</span></div>`).join('')}
     <div class="divider"></div>
     ${sale.discount > 0 ? `<div class="info-line"><span>Chegirma:</span><span>${sale.discount}%</span></div>` : ''}
     <div class="total"><span>JAMI:</span><span>${formatNumber(sale.total)} so'm</span></div>
@@ -1107,7 +1115,12 @@ function renderKassaProducts() {
     let filtered = products.filter(p => p.visible !== false && (p.name.toLowerCase().includes(search) || (p.barcode && p.barcode.includes(search))));
     if (selectedCategory !== 'all') filtered = filtered.filter(p => p.category === selectedCategory);
     if (filtered.length === 0) { grid.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:20px;grid-column:1/-1;">Mahsulot topilmadi</div>'; return; }
-    grid.innerHTML = filtered.map(p => `<div class="product-item" onclick="addToCart(${p.id})"><div class="image">${p.image ? `<img src="${p.image}">` : '📦'}</div><div class="name">${p.name}</div><div class="price">${formatNumber(p.sell)} so'm</div></div>`).join('');
+    grid.innerHTML = filtered.map(p => `<div class="product-item" onclick="addToCart(${p.id})">
+        <div class="image">${p.image ? `<img src="${p.image}">` : '📦'}</div>
+        <div class="name">${p.name}</div>
+        <div class="price">${formatNumber(p.sell)} so'm</div>
+        ${p.unit === 'kg' ? '<div class="unit-badge">⚖️ kg</div>' : ''}
+    </div>`).join('');
 }
 
 function filterProducts() { renderKassaProducts(); }
@@ -1135,7 +1148,7 @@ function renderProductsTable() {
         <td style="font-family:monospace;font-size:11px;">${p.barcode || '-'}</td>
         <td>${formatNumber(p.purchase)} so'm</td>
         <td>${formatNumber(p.sell)} so'm</td>
-        <td>${p.qty} ${p.unit || 'dona'}</td>
+        <td>${p.unit === 'kg' ? formatQuantity(p.qty, 'kg') : p.qty + ' dona'}</td>
         <td><button class="action-btn" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></td>
         <td><button class="print-label-btn" onclick="printProductLabel(${p.id})"><i class="fas fa-print"></i> Etiketka</button></td>
     </tr>`).join('');
@@ -1156,20 +1169,102 @@ function updateProductStats() {
     if (el4) el4.innerHTML = formatNumber(totalProfit) + ' <small>so\'m</small>';
 }
 
+// ⚖️ SAVATGA QO'SHISH (gramm/kg uchun yangilangan)
 function addToCart(productId) {
     if (!shiftOpen) { showToast('❌ Avval smena oching!', 'error'); return; }
     const product = products.find(p => p.id === productId);
     if (!product) return;
+
+    // ⚖️ Agar mahsulot kg bo'lsa — og'irlik modalini ochish
+    if (product.unit === 'kg') {
+        pendingWeightProduct = product;
+        const modal = document.getElementById('weightModal');
+        document.getElementById('weightModalTitle').innerHTML = `<i class="fas fa-weight-hanging"></i> ${product.name}`;
+        document.getElementById('weightInput').value = '';
+        document.getElementById('weightHint').innerHTML = `1 kg narxi: <b>${formatNumber(product.sell)} so'm</b> · Omborda: <b>${formatQuantity(product.qty, 'kg')}</b><br>Grammda kiriting (masalan <b>1200</b> = 1.200 kg) yoki kg (<b>1.2</b>)`;
+        modal.classList.add('active');
+        setTimeout(() => document.getElementById('weightInput').focus(), 100);
+        return;
+    }
+
+    // Dona mahsulot uchun oddiy qo'shish
     const existing = cart.find(c => c.id === productId);
-    if (existing) { if (existing.qty >= product.qty) { showToast('⚠️ Omborda yetarli emas!', 'warning'); return; } existing.qty += 1; }
-    else { if (product.qty < 1) { showToast('⚠️ Mahsulot tugagan!', 'warning'); return; } cart.push({ ...product, qty: 1 }); }
+    if (existing) {
+        if (existing.qty >= product.qty) { showToast('⚠️ Omborda yetarli emas!', 'warning'); return; }
+        existing.qty += 1;
+    } else {
+        if (product.qty < 1) { showToast('⚠️ Mahsulot tugagan!', 'warning'); return; }
+        cart.push({ ...product, qty: 1, unit: 'dona' });
+    }
     updateCart(); showToast('✅ ' + product.name, 'success');
+}
+
+// ⚖️ Tez tanlash tugmalari
+function setQuickWeight(grams) {
+    document.getElementById('weightInput').value = grams;
+}
+
+// ⚖️ Og'irlikni tasdiqlash
+function confirmWeight() {
+    if (!pendingWeightProduct) return;
+    const input = parseFloat(document.getElementById('weightInput').value) || 0;
+    if (input <= 0) { showToast('❌ Miqdorni kiriting!', 'error'); return; }
+
+    // Input grammda yoki kg'da bo'lishi mumkin:
+    // - Agar 100 dan katta bo'lsa — gramm deb hisoblaymiz (masalan 1200 = 1.2 kg)
+    // - Agar kichik bo'lsa — kg deb hisoblaymiz (masalan 1.2 = 1.2 kg)
+    let qtyInKg;
+    if (input >= 100) {
+        qtyInKg = input / 1000;  // gramm → kg
+    } else {
+        qtyInKg = input;  // allaqachon kg
+    }
+
+    const product = pendingWeightProduct;
+
+    if (qtyInKg > product.qty) {
+        showToast(`⚠️ Omborda faqat ${formatQuantity(product.qty, 'kg')} bor!`, 'warning');
+        return;
+    }
+
+    // Savatga qo'shish
+    const existing = cart.find(c => c.id === product.id && c.unit === 'kg');
+    if (existing) {
+        const newQty = existing.qty + qtyInKg;
+        if (newQty > product.qty) {
+            showToast(`⚠️ Omborda faqat ${formatQuantity(product.qty, 'kg')} bor!`, 'warning');
+            return;
+        }
+        existing.qty = newQty;
+    } else {
+        cart.push({ ...product, qty: qtyInKg, unit: 'kg' });
+    }
+
+    updateCart();
+    showToast(`✅ ${product.name} — ${formatQuantity(qtyInKg, 'kg')}`, 'success');
+    closeModal('weightModal');
+    pendingWeightProduct = null;
 }
 
 function removeFromCart(productId) { cart = cart.filter(c => c.id !== productId); updateCart(); }
 function changeQty(productId, delta) {
     const item = cart.find(c => c.id === productId);
     if (!item) return;
+
+    // ⚖️ Kg mahsulot uchun delta o'rniga modal ochish
+    if (item.unit === 'kg') {
+        pendingWeightProduct = products.find(p => p.id === productId);
+        if (pendingWeightProduct) {
+            document.getElementById('weightModalTitle').innerHTML = `<i class="fas fa-weight-hanging"></i> ${pendingWeightProduct.name}`;
+            document.getElementById('weightInput').value = item.qty * 1000; // grammda ko'rsatish
+            document.getElementById('weightHint').innerHTML = `Hozir savatda: <b>${formatQuantity(item.qty, 'kg')}</b><br>Yangi miqdorni grammda kiriting yoki kg (<b>1.2</b>)`;
+            document.getElementById('weightModal').classList.add('active');
+            setTimeout(() => document.getElementById('weightInput').focus(), 100);
+        }
+        return;
+    }
+
+    // Dona mahsulot uchun odatdagi +/- 
     item.qty += delta;
     if (item.qty <= 0) removeFromCart(productId); else updateCart();
 }
@@ -1181,7 +1276,22 @@ function updateCart() {
     if (!container) return;
     count.textContent = cart.reduce((sum, c) => sum + c.qty, 0);
     if (cart.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:20px 0;">Savat bo\'sh</div>'; total.textContent = '0 so\'m'; return; }
-    container.innerHTML = cart.map(c => `<div class="cart-item"><div class="info"><span class="name">${c.name}</span><span class="detail">${formatNumber(c.sell)} so'm × ${c.qty}</span></div><div class="qty-control"><button onclick="changeQty(${c.id}, -1)">−</button><span class="qty">${c.qty}</span><button onclick="changeQty(${c.id}, 1)">+</button></div><span class="item-total">${formatNumber(c.sell * c.qty)} so'm</span><button class="remove-btn" onclick="removeFromCart(${c.id})"><i class="fas fa-times"></i></button></div>`).join('');
+    container.innerHTML = cart.map(c => {
+        const isKg = c.unit === 'kg';
+        const qtyDisplay = isKg ? formatQuantity(c.qty, 'kg') : c.qty + ' dona';
+        const controls = isKg
+            ? `<div class="qty-control" style="cursor:pointer;" onclick="changeQty(${c.id}, 0)"><span class="qty" style="font-size:11px;padding:0 8px;">${qtyDisplay}</span><i class="fas fa-edit" style="font-size:11px;color:var(--icon-color);margin-right:4px;"></i></div>`
+            : `<div class="qty-control"><button onclick="changeQty(${c.id}, -1)">−</button><span class="qty">${c.qty}</span><button onclick="changeQty(${c.id}, 1)">+</button></div>`;
+        return `<div class="cart-item">
+            <div class="info">
+                <span class="name">${c.name}</span>
+                <span class="detail">${formatNumber(c.sell)} so'm × ${isKg ? qtyDisplay : c.qty + ' dona'}</span>
+            </div>
+            ${controls}
+            <span class="item-total">${formatNumber(c.sell * c.qty)} so'm</span>
+            <button class="remove-btn" onclick="removeFromCart(${c.id})"><i class="fas fa-times"></i></button>
+        </div>`;
+    }).join('');
     total.textContent = formatNumber(cart.reduce((sum, c) => sum + c.sell * c.qty, 0)) + ' so\'m';
 }
 
@@ -1513,7 +1623,15 @@ async function saveProduct(e) {
     const image = document.getElementById('productImageData').value || null;
     if (!name || purchase <= 0 || sell <= 0 || qty <= 0) { showToast('❌ Barcha maydonlarni to\'ldiring!', 'error'); return; }
     if (sell <= purchase) { showToast('❌ Sotish narxi katta bo\'lishi kerak!', 'error'); return; }
-    const productData = { name, barcode: barcode || generateBarcode(true), category, purchase, sell, qty, unit, expiry, image, visible: true };
+
+    // ⚖️ Kg bo'lsa — miqdorni kg'da saqlash (masalan 1.2 kg)
+    let qtyToSave = qty;
+    if (unit === 'kg') {
+        // Agar 100 dan katta bo'lsa — gramm deb hisoblaymiz
+        if (qty >= 100) qtyToSave = qty / 1000;
+    }
+
+    const productData = { name, barcode: barcode || generateBarcode(true), category, purchase, sell, qty: qtyToSave, unit, expiry, image, visible: true };
     if (id) {
         const index = products.findIndex(p => p.id === parseInt(id));
         if (index !== -1) {
@@ -1735,7 +1853,7 @@ function downloadShiftExcel() {
     csv += `Nasiya,${totalNasiya}\n`;
     csv += `JAMI,${grandTotal}\n\n`;
     csv += 'Mahsulot,Miqdor,Narx,Jami\n';
-    todaySales.forEach(s => { if (s.items) s.items.forEach(item => { csv += `"${item.name}",${item.qty},${item.sell},${item.sell * item.qty}\n`; }); });
+    todaySales.forEach(s => { if (s.items) s.items.forEach(item => { csv += `"${item.name}","${formatQuantity(item.qty, item.unit)}",${item.sell},${item.sell * item.qty}\n`; }); });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -1750,8 +1868,6 @@ function downloadShiftExcel() {
 // BOSHLASH
 // ================================================================
 async function boot() {
-    if (localStorage.getItem('bilal_dark_mode') === 'true') document.body.classList.add('dark-mode');
-
     document.getElementById('loadingOverlay').classList.add('active');
     document.getElementById('loadingText').textContent = 'Supabase\'ga ulanmoqda...';
 
@@ -1779,7 +1895,8 @@ async function boot() {
 
     console.log('🏪 Bilal-sale POS + Supabase tayyor!');
     console.log('📸 Rasm yuklash qo\'shildi');
-    console.log('📱 PWA rejimi faol — desktop/telefonga o\'rnatish mumkin');
+    console.log('⚖️ Kiloli mahsulotlar (gramm/kg) qo\'shildi');
+    console.log('📱 PWA rejimi faol');
 }
 
 boot();
