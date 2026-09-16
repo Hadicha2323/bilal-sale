@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bilal-sale · POS</title>
 
-    <!-- 📱 PWA META TEGLARI -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4a9eff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,8 +66,8 @@
         .menu-item:hover { background: rgba(74, 158, 255, 0.06); color: var(--text-primary); }
         .menu-item.active { background: var(--btn-primary); color: white; }
 
-        /* ✅ SECTIONS — max-height olib tashlandi, flex:1 avtomatik */
-        .section-container { display: none; animation: fadeIn 0.5s ease; flex: 1; overflow-y: auto; padding-bottom: 20px; }
+        /* ✅ SECTIONS — position: relative QO'SHILDI */
+        .section-container { display: none; animation: fadeIn 0.5s ease; flex: 1; overflow-y: auto; padding-bottom: 20px; position: relative; }
         .section-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -99,7 +98,7 @@
         .alert-box { background: var(--bg-menu); border-radius: 18px; padding: 14px 16px; border: 1px solid var(--border-color); min-height: 100px; }
         .alert-box h3 { font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
 
-        .kassa-layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; min-height: calc(100vh - 260px); }
+        .kassa-layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; min-height: calc(100vh - 240px); }
         .search-box { display: flex; gap: 10px; background: var(--bg-input); padding: 6px 14px; border-radius: 60px; border: 1px solid var(--border-color); align-items: center; margin-bottom: 10px; min-height: 50px; }
         .search-box input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 16px; outline: none; color: var(--text-primary); min-height: 40px; }
         .search-box i { color: var(--icon-color); font-size: 16px; }
@@ -110,8 +109,7 @@
         .category-filter .cat-btn.active { background: var(--btn-primary); color: white; }
         .category-filter .cat-btn.add-cat { background: rgba(74, 158, 255, 0.06); color: var(--icon-color); border: 1px dashed rgba(74, 158, 255, 0.15); }
 
-        /* ✅ PRODUCTS GRID — to'liq ekranga */
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: calc(100vh - 380px); min-height: 300px; overflow-y: auto; padding: 4px 2px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: calc(100vh - 340px); min-height: 300px; overflow-y: auto; padding: 4px 2px; }
         .product-item { background: var(--product-bg); border-radius: 18px; padding: 14px 10px; text-align: center; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.3s ease; color: var(--text-primary); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .product-item:hover { transform: translateY(-4px); background: var(--bg-card-hover); }
         .product-item .image { font-size: 48px; width: 60px; height: 60px; border-radius: 12px; background: var(--bg-input); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; overflow: hidden; }
@@ -120,18 +118,16 @@
         .product-item .price { font-size: 14px; color: var(--icon-color); font-weight: 700; margin-top: 2px; }
         .product-item .unit-badge { font-size: 10px; color: var(--text-secondary); background: var(--bg-menu); padding: 1px 8px; border-radius: 20px; margin-top: 2px; }
 
-        /* ⚠️ KAM QOLGAN MAHSULOT */
         .product-item.low-stock { border: 2px solid #ff4d4d; background: rgba(255, 77, 77, 0.1); }
         .product-item.low-stock .name { color: #d32f2f; }
         .product-item.low-stock .price { color: #d32f2f; }
         .product-item.low-stock .image { border-color: #ff4d4d; }
         .product-item .stock-badge { position: absolute; top: 6px; right: 6px; background: #ff4d4d; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; box-shadow: 0 2px 8px rgba(255, 77, 77, 0.4); z-index: 2; }
 
-        /* ✅ YANA YUKLASH TUGMASI */
         .load-more-btn { grid-column: 1/-1; text-align: center; padding: 16px; }
         .load-more-btn button { padding: 12px 30px; font-size: 14px; font-weight: 700; }
 
-        .cart-panel { background: var(--cart-bg); border-radius: 20px; padding: 14px; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: calc(100vh - 260px); }
+        .cart-panel { background: var(--cart-bg); border-radius: 20px; padding: 14px; border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: calc(100vh - 240px); }
         .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid var(--border-color); }
         .cart-header h3 { color: var(--text-primary); font-size: 16px; display: flex; align-items: center; gap: 6px; }
         .cart-header .count { background: var(--btn-primary); color: white; padding: 2px 10px; border-radius: 40px; font-size: 13px; }
@@ -150,9 +146,7 @@
         .total-row .total-amount { color: var(--icon-color); font-size: 22px; }
 
         .pay-big-btn { width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: none; border-radius: 60px; background: var(--btn-success); color: white; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; min-height: 56px; }
-        .pay-big-btn:hover { transform: translateY(-3px); }
-
-        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
+        .pay-big-btn:hover { transform: translateY(-3px); }        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 50, 80, 0.3); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 16px; }
         .payment-modal.active { display: flex; }
         .payment-modal-content { background: var(--bg-modal); border-radius: 32px; padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
         .payment-modal-content h2 { color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 20px; }
@@ -168,7 +162,8 @@
         .payment-modal-content .pay-total .amount { color: var(--icon-color); }
         .payment-modal-content .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-        .products-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; background: var(--bg-card); backdrop-filter: blur(12px); padding: 8px 0; border-radius: 12px; }
+        /* ✅ PRODUCTS HEADER — STICKY (top: -1px, z-index: 100) */
+        .products-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; position: sticky; top: -1px; z-index: 100; background: var(--bg-card); backdrop-filter: blur(12px); padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(60, 80, 120, 0.08); }
         .products-header h2 { color: var(--text-primary); display: flex; align-items: center; gap: 6px; font-size: 18px; }
 
         .products-table-wrapper { background: var(--bg-menu); border-radius: 18px; padding: 12px; border: 1px solid var(--border-color); overflow-x: auto; max-height: 60vh; overflow-y: auto; }
@@ -296,8 +291,7 @@
         }
         @media (max-width: 380px) { .products-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .payment-modal-content .pay-methods { grid-template-columns: repeat(2, 1fr); } }
     </style>
-</head>
-<body>
+</head><body>
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
@@ -344,7 +338,6 @@
             <div id="overdueDebtsList"><div style="text-align:center;color:var(--text-secondary);opacity:0.5;padding:12px;">Hali muddati kelgan qarz yo'q</div></div>
         </div>
 
-        <!-- ⚠️ KAM QOLGAN MAHSULOTLAR -->
         <div style="margin-top:10px; background: rgba(255, 77, 77, 0.06); border-radius:18px; padding:12px 16px; border:1px solid rgba(255, 77, 77, 0.15);">
             <h3 style="color: #d32f2f; font-size:15px; display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <i class="fas fa-exclamation-triangle"></i> Kam qolgan mahsulotlar (5 tadan kam)
@@ -625,9 +618,7 @@
         <button class="btn btn-primary btn-sm" onclick="installPWA()"><i class="fas fa-download"></i> O'rnatish</button>
         <button class="btn btn-danger btn-sm" onclick="closePwaBanner()"><i class="fas fa-times"></i></button>
     </div>
-</div>
-
-<script>
+</div><script>
 // ================================================================
 // SUPABASE SOZLAMALARI
 // ================================================================
@@ -657,7 +648,11 @@ let debts = [];
 let employees = [];
 let salesHistory = [];
 
-let shiftOpen = false, shiftNumber = '---', shiftCashier = '';
+// ✅ Smena localStorage'dan tiklanadi
+let shiftOpen = localStorage.getItem('bilal_shift_open') === 'true';
+let shiftNumber = localStorage.getItem('bilal_shift_number') || '---';
+let shiftCashier = localStorage.getItem('bilal_shift_cashier') || '';
+
 let dailySales = 0, cart = [];
 let discountPercent = 0;
 let dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
@@ -727,7 +722,7 @@ window.addEventListener('appinstalled', () => {
 });
 
 // ================================================================
-// ✅ SAHIFALAB YUKLASH (pagination) — 50000+ mahsulot uchun
+// ✅ SAHIFALAB YUKLASH (pagination)
 // ================================================================
 async function loadAllProductsPaginated() {
     const PAGE_SIZE = 1000;
@@ -768,11 +763,11 @@ async function loadAllFromSupabase() {
     try {
         const loadingText = document.getElementById('loadingText');
         if (loadingText) loadingText.textContent = 'Mahsulotlar yuklanmoqda...';
-        
+
         const productsData = await loadAllProductsPaginated();
 
         if (loadingText) loadingText.textContent = 'Boshqa ma\'lumotlar yuklanmoqda...';
-        
+
         const [cRes, dRes, eRes, sRes] = await Promise.all([
             db.from('categories').select('*').order('id'),
             db.from('debts').select('*').order('id', { ascending: false }),
@@ -1075,9 +1070,7 @@ function clearProductImage() {
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('productImageCamera').value = '';
     document.getElementById('productImageGallery').value = '';
-}
-
-// ================================================================
+}// ================================================================
 // PRINTER
 // ================================================================
 function loadPrinterSettingsUI() {
@@ -1294,7 +1287,6 @@ function renderKassaProducts(resetPage = true) {
         return; 
     }
 
-    // ✅ Sahifalab ko'rsatish
     const endIndex = (kassaPage + 1) * KASSA_PAGE_SIZE;
     const displayProducts = filtered.slice(0, endIndex);
     const hasMore = filtered.length > endIndex;
@@ -1317,7 +1309,6 @@ function renderKassaProducts(resetPage = true) {
         </div>`;
     }).join('');
 
-    // ✅ "Yana yuklash" tugmasi
     if (hasMore) {
         const remaining = filtered.length - endIndex;
         grid.innerHTML += `
@@ -1591,9 +1582,7 @@ async function completeSale(total, payments, originalTotal) {
     cart = []; updateCart(); discountPercent = 0;
     document.getElementById('discountBtn').innerHTML = `<span class="icon"><i class="fas fa-percent"></i></span>Chegirma`;
     showToast('✅ Sotuv: ' + formatNumber(total) + ' so\'m', 'success');
-}
-
-// ================================================================
+}// ================================================================
 // NASIYA
 // ================================================================
 function showDebtorModal() {
@@ -1876,26 +1865,43 @@ function generateBarcode(returnOnly = false) {
 }
 
 // ================================================================
-// SMENA
+// SMENA — localStorage BILAN SAQLANADI
 // ================================================================
 function toggleShift() {
     if (!shiftOpen) {
+        // ✅ SMENA OCHISH
         const name = prompt('Kassir ismini kiriting:');
         if (!name) return;
         const password = prompt('Parolni kiriting:');
         if (!password) return;
         const emp = employees.find(e => e.active && (e.name.toLowerCase() === name.toLowerCase() || (e.name.toLowerCase() + ' ' + e.surname.toLowerCase()) === name.toLowerCase()) && e.password === password);
         if (!emp) { showToast('❌ Xodim topilmadi yoki parol noto\'g\'ri!', 'error'); return; }
-        shiftOpen = true; shiftCashier = emp.name + ' ' + emp.surname;
+        
+        shiftOpen = true;
+        shiftCashier = emp.name + ' ' + emp.surname;
         shiftNumber = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
         dailySales = 0; cart = []; dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
+        
+        // ✅ localStorage'ga saqlash
+        localStorage.setItem('bilal_shift_open', 'true');
+        localStorage.setItem('bilal_shift_number', shiftNumber);
+        localStorage.setItem('bilal_shift_cashier', shiftCashier);
+        localStorage.setItem('bilal_shift_opened_at', new Date().toISOString());
+        
         updateCart(); updateShiftUI(); updateDashboard();
         showToast('✅ Smena ochildi! ' + shiftCashier, 'success');
     } else {
-        if (confirm('Smenani yopishni xohlaysizmi?')) {
+        // ✅ SMENA YOPISH (faqat qo'lda)
+        if (confirm('Smenani yopishni xohlaysizmi?\n\n⚠️ Smena faqat siz tasdiqlaganingizda yopiladi.')) {
             downloadShiftExcel();
             shiftOpen = false; shiftCashier = ''; shiftNumber = '---';
             dailySales = 0; cart = []; dailyStats = { naxt: 0, uzcard: 0, humo: 0, click: 0, nasiya: 0 };
+            
+            localStorage.removeItem('bilal_shift_open');
+            localStorage.removeItem('bilal_shift_number');
+            localStorage.removeItem('bilal_shift_cashier');
+            localStorage.removeItem('bilal_shift_opened_at');
+            
             updateCart(); updateShiftUI(); updateDashboard();
             showToast('✅ Smena yopildi!', 'success');
         }
@@ -1927,7 +1933,6 @@ function updateDashboard() {
     if (overdue.length === 0) { overdueContainer.innerHTML = '<div style="text-align:center;color:#4a9eff;opacity:0.7;padding:8px;">✅ Barcha qarzlar o\'z vaqtida</div>'; }
     else { overdueContainer.innerHTML = overdue.map(d => `<div style="display:flex;justify-content:space-between;padding:4px 0;"><span>${d.name} ${d.surname}</span><span style="color:#4a9eff;">${formatNumber(d.remaining)} so'm</span></div>`).join(''); }
 
-    // ⚠️ KAM QOLGAN MAHSULOTLAR
     const lowStock = products.filter(p => p.qty <= 5 && p.qty > 0);
     const outOfStock = products.filter(p => p.qty <= 0);
     const allLow = [...outOfStock, ...lowStock];
@@ -2107,6 +2112,11 @@ async function boot() {
     document.getElementById('loadingOverlay').classList.add('active');
     document.getElementById('loadingText').textContent = 'Supabase\'ga ulanmoqda...';
 
+    // ✅ Smena tiklanganini tekshirish
+    if (shiftOpen && shiftCashier) {
+        console.log('🔄 Smena tiklandi:', shiftCashier, '#' + shiftNumber);
+    }
+
     const ok = await loadAllFromSupabase();
 
     if (!ok) {
@@ -2133,8 +2143,9 @@ async function boot() {
     console.log('📸 Rasm yuklash qo\'shildi');
     console.log('⚖️ Kiloli mahsulotlar (gramm/kg) qo\'shildi');
     console.log('📷 Kamera orqali shtrix-kod skaner qo\'shildi');
-    console.log('📄 Sahifalab yuklash (1000 tadan) — 50000+ mahsulot uchun');
+    console.log('📄 Sahifalab yuklash (1000 tadan)');
     console.log('⚠️ Kam qolgan mahsulotlar (5 tadan) qizarib ko\'rinadi');
+    console.log('💾 Smena localStorage\'da saqlanadi');
     console.log('📱 PWA rejimi faol');
 }
 
